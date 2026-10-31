@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastrar Lojas - A.C.I</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        fundo: '#0B0B15',
+                        card: '#151526',
+                        destaque: '#10B981',
+                        texto: '#E2E8F0',
+                        borda: '#27273F',
+                        erro: '#EF4444',
+                    }
+                }
+            }
+        }
+        // ✅ Endereço da API igual configurado no app.js
+        const API = "http://portalregionalcampinas.com.br/aci:3000/api";
+          const LOGIN_ADMIN = "ECELL";
+        const SENHA_ADMIN = "8341@";
+    </script>
+    <style>
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+
+        body {
+            background: linear-gradient(135deg, #0B0B15 0%, #101020 100%);
+            color: #E2E8F0;
+            padding: 2rem 1rem;
+            transform: scale(0.4); /* Zoom geral da página */
+            transform-origin: top center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 720px;
+            margin: 0 auto;
+            background-color: #151526;
+            border-radius: 16px;
+            border: 1px solid #27273F;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+            padding: 3rem 2.5rem;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0; 
+            left: 0;
+            width: 100%; 
+            height: 4px;
+            background: linear-gradient(90deg, #10B981 0%, #34D399 100%);
+        }
+
+        .titulo-pagina { 
+            font-size: 38px; 
+            font-weight: 700; 
+            text-align: center; 
+            margin-bottom: 1rem; 
+            color: #FFFFFF; 
+        }
+
+        .subtitulo { 
+            text-align: center; 
+            color: #94A3B8; 
+            font-size: 19px; 
+            margin-bottom: 3rem; 
+        }
+
+        .grupo-campo { 
+            margin-bottom: 2.8rem; 
+        }
+
+        label { 
+            display: block; 
+            font-size: 24px; /* Etiquetas maiores */
+            font-weight: 500; 
+            margin-bottom: 14px; 
+            color: #E2E8F0; 
+        }
+
+        .campo-obrigatorio { 
+            color: #EF4444; 
+            margin-left: 4px; 
+        }
+
+        .input-container { 
+            position: relative; 
+        }
+
+        /* ✅ Campos com fonte grande e visível */
+        input {
+            width: 100%;
+            background-color: #1E1E32;
+            border: 2px solid #27273F;
+            border-radius: 10px;
+            padding: 24px 24px 24px 70px; /* Mais espaço interno */
+            font-size: 36px !important; /* 🔤 Fonte bem maior */
+            color: #FFFFFF;
+            min-height: 100px; /* Campo mais alto */
+            transition: all 0.3s ease;
+        }
+
+        input:focus { 
+            outline: none; 
+            border-color: #10B981; 
+            background-color: #232338; 
+            box-shadow: 0 0 0 3px rgba(16,185,129,0.15); 
+        }
+
+        .icone-campo { 
+            position: absolute; 
+            left: 22px; 
+            top: 50%; 
+            transform: translateY(-50%); 
+            color: #94A3B8; 
+            font-size: 32px; /* Ícones maiores */
+            pointer-events: none; 
+        }
+
+        .dica { 
+            font-size: 20px; /* Textos de ajuda maiores */
+            color: #787892; 
+            margin-top: 12px; 
+            padding-left: 70px; 
+        }
+
+        .mensagem { 
+            padding: 24px; 
+            border-radius: 10px; 
+            margin-bottom: 2.8rem; 
+            text-align: center; 
+            font-weight: 500; 
+            display: none; 
+            font-size: 26px; /* Mensagens maiores */
+        }
+
+        .sucesso { 
+            background: rgba(16,185,129,0.12); 
+            border: 1px solid #10B981; 
+            color: #BBF7D0; 
+        }
+
+        .erro { 
+            background: rgba(239,68,68,0.12); 
+            border: 1px solid #EF4444; 
+            color: #FECDD3; 
+        }
+
+        .botao { 
+            width: 100%; 
+            background: linear-gradient(90deg, #10B981 0%, #059669 100%); 
+            color: #FFFFFF; 
+            border: none; 
+            border-radius: 10px; 
+            padding: 26px; 
+            font-size: 28px; /* Texto do botão maior */
+            font-weight: 600; 
+            cursor: pointer; 
+            min-height: 90px; 
+        }
+
+        .botao:hover { 
+            background: linear-gradient(90deg, #059669 0%, #047857 100%); 
+            transform: translateY(-1px); 
+        }
+
+        .botao-voltar { 
+            width: 100%; 
+            background: #27273F; 
+            color: #E2E8F0; 
+            border: none; 
+            border-radius: 10px; 
+            padding: 24px; 
+            font-size: 26px; /* Botão voltar maior */
+            margin-top: 1.5rem; 
+            cursor: pointer; 
+            text-align: center; 
+            text-decoration: none; 
+            display: inline-block; 
+        }
+
+        .botao-voltar:hover { 
+            background: #32324A; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="titulo-pagina"><i class="fa fa-store"></i> Cadastrar Nova Loja</h1>
+        <p class="subtitulo">Preencha todos os dados abaixo para adicionar uma nova loja ao sistema</p>
+
+        <div id="mensagem" class="mensagem"></div>
+
+        <form id="formCadastro">
+            <!-- CNPJ/CPF -->
+            <div class="grupo-campo">
+                <label for="documento">CNPJ ou CPF <span class="campo-obrigatorio">*</span></label>
+                <div class="input-container">
+                    <i class="fa fa-id-card icone-campo"></i>
+                    <input type="text" id="documento" name="documento" placeholder="Digite apenas números" required oninput="this.value = this.value.replace(/\D/g, '')">
+                </div>
+                <p class="dica">Apenas números, sem pontos ou traços</p>
+            </div>
+
+            <!-- Nome da Loja -->
+            <div class="grupo-campo">
+                <label for="nome">Nome da Loja / Razão Social <span class="campo-obrigatorio">*</span></label>
+                <div class="input-container">
+                    <i class="fa fa-building icone-campo"></i>
+                    <input type="text" id="nome" name="nome" placeholder="Ex: Loja Exemplo LTDA" required>
+                </div>
+            </div>
+
+            <!-- Endereço Completo -->
+            <div class="grupo-campo">
+                <label for="endereco">Endereço Completo <span class="campo-obrigatorio">*</span></label>
+                <div class="input-container">
+                    <i class="fa fa-map-marker-alt icone-campo"></i>
+                    <input type="text" id="endereco" name="endereco" placeholder="Rua, número, bairro, cidade - UF" required>
+                </div>
+            </div>
+
+            <!-- Chave PIX -->
+            <div class="grupo-campo">
+                <label for="pixChave">Chave PIX <span class="campo-obrigatorio">*</span></label>
+                <div class="input-container">
+                    <i class="fa fa-key icone-campo"></i>
+                    <input type="text" id="pixChave" name="pixChave" placeholder="CPF, CNPJ, e-mail, telefone ou chave aleatória" required>
+                </div>
+            </div>
+
+            <!-- Titular PIX -->
+            <div class="grupo-campo">
+                <label for="pixTitular">Titular da Conta PIX <span class="campo-obrigatorio">*</span></label>
+                <div class="input-container">
+                    <i class="fa fa-user icone-campo"></i>
+                    <input type="text" id="pixTitular" name="pixTitular" placeholder="Nome completo do titular" required>
+                </div>
+            </div>
+
+            <!-- Cidade PIX -->
+            <div class="grupo-campo">
+                <label for="pixCidade">Cidade do Titular <span class="campo-obrigatorio">*</span></label>
+                <div class="input-container">
+                    <i class="fa fa-city icone-campo"></i>
+                    <input type="text" id="pixCidade" name="pixCidade" placeholder="Cidade onde a conta está registrada" required>
+                </div>
+            </div>
+
+            <button type="submit" class="botao">
+                <i class="fa fa-save"></i> Cadastrar Loja
+            </button>
+
+            <a href="/" class="botao-voltar">
+                <i class="fa fa-arrow-left"></i> Voltar ao Painel
+            </a>
+        </form>
+    </div>
+
+    <script>
+        const form = document.getElementById('formCadastro');
+        const mensagemDiv = document.getElementById('mensagem');
+
+        // Função para exibir mensagens
+        function mostrarMensagem(texto, tipo = 'sucesso') {
+            mensagemDiv.textContent = texto;
+            mensagemDiv.className = `mensagem ${tipo}`;
+            mensagemDiv.style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Envio do formulário
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const dados = {
+                documento: document.getElementById('documento').value.trim(),
+                nome: document.getElementById('nome').value.trim(),
+                endereco: document.getElementById('endereco').value.trim(),
+                pix: {
+                    chave: document.getElementById('pixChave').value.trim(),
+                    titular: document.getElementById('pixTitular').value.trim(),
+                    cidade: document.getElementById('pixCidade').value.trim()
+                }
+            };
+
+            try {
+                mostrarMensagem("⏳ Cadastrando...", "sucesso");
+
+                const resposta = await fetch(`${API}/cadastrar-loja`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${SENHA_ADMIN}`
+                    },
+                    body: JSON.stringify(dados)
+                });
+
+                const resultado = await resposta.json();
+
+                if (resultado.sucesso) {
+                    mostrarMensagem("✅ Loja cadastrada com sucesso! Estrutura de pastas criada automaticamente.", 'sucesso');
+                    form.reset();
+                } else {
+                    mostrarMensagem(`❌ ${resultado.erro}`, 'erro');
+                }
+
+            } catch (erro) {
+                mostrarMensagem(`❌ Falha na conexão com o servidor: ${erro.message}`, 'erro');
+            }
+        });
+    </script>
+</body>
+</html>

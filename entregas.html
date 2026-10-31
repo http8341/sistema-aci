@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A.C.I - Entregas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        // 🔴 APENAS ENDEREÇO DO SERVIDOR — NENHUM DADO DE LOJA FIXO!
+        const ENDERECO_PDV = "http://192.168.15.82:5000";
+        const API_PDV = `${ENDERECO_PDV}/api`;
+
+        // DADOS SÃO CARREGADOS AUTOMATICAMENTE DO PDV
+        let dadosLojaConectada = null;
+        const entregadorLogado = { id: "1", nome: "Entregador A.C.I" };
+
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        acilaranja: '#f97316',
+                        aciverde: '#10B981',
+                        aciazul: '#2563eb',
+                        acicinza: '#6b7280'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .tela { display: none; }
+        .tela.ativa { display: block; }
+        .card { transition: all 0.2s ease; }
+        .card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="max-w-2xl mx-auto p-4">
+
+        <!-- CABEÇALHO COM IDENTIFICAÇÃO EXATA DA LOJA -->
+        <header class="bg-acilaranja text-white rounded-xl p-4 mb-6 shadow-md">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-bold">A.C.I - Entregas</h1>
+                    <p id="infoOrigemLoja" class="text-sm opacity-90">Conectando ao PDV...</p>
+                </div>
+                <span id="statusConexao" class="px-3 py-1 bg-red-500 text-xs rounded-full">Offline</span>
+            </div>
+        </header>
+
+        <div id="telaPrincipal" class="tela ativa">
+            <!-- STATUS ONLINE -->
+            <div class="bg-white rounded-xl p-4 mb-6 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="font-semibold">Status do Entregador</h3>
+                        <p class="text-sm text-gray-500">Ligue para receber pedidos desta loja</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="chkOnline" class="sr-only peer" onchange="alternarStatus(this.checked)">
+                        <div class="w-16 h-8 bg-gray-300 peer-checked:bg-aciverde rounded-full after:absolute after:top-1 after:left-1 after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:after:translate-x-8"></div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- PEDIDOS DISPONÍVEIS -->
+            <section class="mb-6">
+                <h2 class="text-xl font-bold mb-3 flex items-center gap-2">
+                    <i class="fa fa-box-open text-acilaranja"></i> Pedidos Disponíveis
+                </h2>
+                <div id="listaDisponiveis" class="space-y-3">
+                    <div class="bg-white rounded-xl p-6 text-center text-gray-500">
+                        <p>Ligue o status ONLINE para carregar</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- MINHAS ENTREGAS EM ANDAMENTO -->
+            <section>
+                <h2 class="text-xl font-bold mb-3 flex items-center gap-2">
+                    <i class="fa fa-truck text-aciazul"></i> Minhas Entregas em Andamento
+                </h2>
+                <div id="listaMinhas" class="space-y-3">
+                    <div class="bg-white rounded-xl p-6 text-center text-gray-500">
+                        <p>Nenhuma entrega vinculada a você</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        let intervaloAtualizacao = null;
+
+        // 📌 BUSCA DADOS DA LOJA DIRETO DA API
+        async function carregarDadosLoja() {
+            try {
+                const res = await fetch(`${API_PDV}/dados_loja`);
+                const dados = await res.json();
+                if (!dados.sucesso) throw new Error("Sem dados da loja");
+
+                dadosLojaConectada = {
+                    nome: dados.nome_loja,
+                    documento: dados.cnpj || dados.cpf || "Não informado",
+                    id_loja: dados.id_loja || dados.cnpj || dados.cpf
+                };
+
+                document.getElementById('infoOrigemLoja').textContent = 
+                    `${dadosLojaConectada.nome} • ${dadosLojaConectada.documento}`;
+                console.log(`✅ Conectado: ${dadosLojaConectada.nome} | Doc: ${dadosLojaConectada.documento}`);
+            } catch (erro) {
+                alert("❌ Não foi possível identificar a loja — verifique o servidor!");
+                console.error("Erro na identificação:", erro);
+            }
+        }
+
+        function alternarStatus(online) {
+            const status = document.getElementById('statusConexao');
+            status.textContent = online ? "Online" : "Offline";
+            status.className = `px-3 py-1 text-xs rounded-full ${online ? 'bg-green-500' : 'bg-red-500'} text-white`;
+
+            if (online) {
+                if (!dadosLojaConectada) carregarDadosLoja();
+                carregarPedidos();
+                intervaloAtualizacao = setInterval(carregarPedidos, 10000);
+            } else {
+                clearInterval(intervaloAtualizacao);
+                limparListas();
+            }
+        }
+
+        function limparListas() {
+            document.getElementById('listaDisponiveis').innerHTML = '<p class="text-center text-gray-500 py-4">Ligue o ONLINE primeiro</p>';
+            document.getElementById('listaMinhas').innerHTML = '<p class="text-center text-gray-500 py-4">Nenhuma entrega sua</p>';
+        }
+
+        // 📌 CARREGA E FILTRA PEDIDOS
+        async function carregarPedidos() {
+            try {
+                if (!dadosLojaConectada) await carregarDadosLoja();
+                const res = await fetch(`${API_PDV}/entregas`);
+                const dados = await res.json();
+                const todosPedidos = dados.entregas || [];
+
+                // Filtra só pedidos desta loja
+                const pedidosDestaLoja = todosPedidos.filter(p => {
+                    const docPedido = String(p.cnpj_loja || p.cpf_loja || p.id_loja || '').trim();
+                    const docConectado = String(dadosLojaConectada.id_loja).trim();
+                    return docPedido === docConectado;
+                });
+
+                // Disponíveis
+                const disponiveis = pedidosDestaLoja.filter(p => {
+                    const status = String(p.status).toLowerCase().trim();
+                    return ['aguardando_entregador', 'pendente', ''].includes(status);
+                });
+
+                // Minhas em andamento — CORRIGIDO PARA APARECER SEMPRE!
+                const idEntregador = String(entregadorLogado.id).trim();
+                const minhas = pedidosDestaLoja.filter(p => {
+                    const eMeu = String(p.id_entregador || '').trim() === idEntregador;
+                    const statusValidos = ['em_andamento', 'aceito', 'a_caminho', 'em_rota'];
+                    const estaAndamento = statusValidos.includes(String(p.status).toLowerCase().trim());
+                    return eMeu && estaAndamento;
+                });
+
+                renderizarDisponiveis(disponiveis);
+                renderizarMinhas(minhas);
+
+            } catch (erro) {
+                console.error("❌ Erro ao carregar pedidos:", erro);
+            }
+        }
+
+        function renderizarDisponiveis(lista) {
+            const el = document.getElementById('listaDisponiveis');
+            el.innerHTML = lista.length ? lista.map(p => `
+                <div class="card bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-bold">Pedido #${p.id_entrega}</h3>
+                        <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">Aguardando</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-1"><strong>Origem:</strong> ${p.nome_loja} • ${p.cnpj_loja || p.cpf_loja}</p>
+                    <p class="text-sm text-gray-600 mb-1"><strong>Cliente:</strong> ${p.cliente}</p>
+                    <p class="text-sm text-gray-600 mb-2"><strong>Endereço:</strong> ${p.endereco}</p>
+                    <div class="flex justify-between items-center mt-2">
+                        <span class="font-bold text-acilaranja">R$ ${Number(p.valor_total).toFixed(2).replace('.', ',')}</span>
+                        <button onclick="aceitarPedido('${p.id_entrega}')" class="bg-aciverde text-white px-4 py-2 rounded-lg text-sm font-semibold">Aceitar</button>
+                    </div>
+                </div>
+            `).join('') : '<p class="text-center text-gray-500 py-4">Nenhum pedido disponível nesta loja</p>';
+        }
+
+        function renderizarMinhas(lista) {
+            const el = document.getElementById('listaMinhas');
+            el.innerHTML = lista.length ? lista.map(p => `
+                <div class="card bg-white rounded-xl p-4 shadow-sm border border-blue-100">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-bold text-aciazul">Pedido #${p.id_entrega}</h3>
+                        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Em andamento</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-1"><strong>Origem:</strong> ${p.nome_loja} • ${p.cnpj_loja || p.cpf_loja}</p>
+                    <p class="text-sm text-gray-600 mb-1"><strong>Cliente:</strong> ${p.cliente}</p>
+                    <p class="text-sm text-gray-600 mb-2"><strong>Endereço:</strong> ${p.endereco}</p>
+                    <div class="flex justify-between items-center mt-2">
+                        <span class="font-bold text-acilaranja">R$ ${Number(p.valor_total).toFixed(2).replace('.', ',')}</span>
+                        <button onclick="finalizarPedido('${p.id_entrega}')" class="bg-aciazul text-white px-4 py-2 rounded-lg text-sm font-semibold">✅ Marcar Entregue</button>
+                    </div>
+                </div>
+            `).join('') : '<p class="text-center text-gray-500 py-4">Nenhuma entrega vinculada a você</p>';
+        }
+
+        // 📌 ACEITA ENTREGA — FUNCIONANDO
+        async function aceitarPedido(id) {
+            if (!confirm(`Confirma aceitar este pedido da loja ${dadosLojaConectada.nome}?`)) return;
+            try {
+                const res = await fetch(`${API_PDV}/aceitar-entrega`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id_entrega: id,
+                        id_entregador: entregadorLogado.id,
+                        nome_entregador: entregadorLogado.nome,
+                        status: 'em_andamento'
+                    })
+                });
+                const retorno = await res.json();
+                if (retorno.sucesso) {
+                    alert("✅ Entrega aceita! Agora aparece na lista de andamento.");
+                    await carregarPedidos();
+                } else {
+                    alert("❌ Erro ao aceitar: " + (retorno.mensagem || "Servidor não confirmou"));
+                }
+            } catch {
+                alert("❌ Falha na conexão com o servidor");
+            }
+        }
+
+        // 📌 FINALIZA ENTREGA — 100% GARANTIDA
+        async function finalizarPedido(id) {
+            if (!confirm("Confirma que o pedido foi entregue? O status será atualizado no sistema.")) return;
+            try {
+                const res = await fetch(`${API_PDV}/atualizar-entrega`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id_entrega: id,
+                        status: 'entregue'
+                    })
+                });
+                const retorno = await res.json();
+                if (retorno.sucesso) {
+                    alert("✅ Entrega finalizada com sucesso! O status já foi atualizado no PDV.");
+                    await carregarPedidos(); // Atualiza e remove da lista de andamento
+                } else {
+                    alert("❌ Erro ao finalizar: " + (retorno.mensagem || "Servidor não confirmou"));
+                }
+            } catch {
+                alert("❌ Falha na conexão — verifique se o servidor está ligado");
+            }
+        }
+
+        // Inicia carregando dados da loja
+        carregarDadosLoja();
+    </script>
+</body>
+</html>

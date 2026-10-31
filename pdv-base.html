@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>PDV - {NOME_LOJA}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { display: flex; flex-direction: column; height: 100vh; background: #f4f4f4; overflow: hidden; }
+        .main-container { display: flex; flex: 1; overflow: hidden; }
+        nav { width: 360px; background: #2c3e50; color: white; display: flex; flex-direction: column; border-right: 2px solid #1a252f; }
+        .menu-header { background: #1a252f; padding: 15px; text-align: center; font-weight: bold; text-transform: uppercase; font-size: 13px; }
+        .lista-estoque-menu { flex: 1; overflow-y: auto; padding: 5px; }
+        .item-estoque { padding: 8px 10px; border-bottom: 1px solid #34495e; font-size: 11px; display: flex; justify-content: space-between; align-items: center; }
+        .qtd-badge { background: #27ae60; color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold; min-width: 45px; text-align: center; }
+        .admin-sidebar { padding: 15px; background: #1a252f; border-top: 2px solid #2980b9; }
+        .admin-sidebar input, .admin-sidebar select { width: 100%; padding: 8px; margin-bottom: 5px; border-radius: 4px; border: none; font-size: 12px; background: #34495e; color: white; outline: none; }
+        .btn-salvar { width: 100%; padding: 10px; background: #2980b9; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
+        .btn-zap { background: #25D366; margin-top: 5px; width: 100%; font-size: 12px; padding: 8px; }
+        .btn-menu { width: 100%; padding: 10px; margin: 5px 0; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; text-align: left; padding-left: 15px; transition: all 0.3s ease; }
+        .btn-pedidos { background: #9b59b6; color: white; }
+        .btn-pedidos:hover { background: #8e44ad; }
+        /* 🆕 Efeito de piscar para novos pedidos */
+        .btn-pedidos.piscando {
+            animation: brilhar 0.8s ease-in-out alternate infinite;
+            box-shadow: 0 0 12px #ffcc00, 0 0 24px #ff9900;
+        }
+        @keyframes brilhar {
+            from { background-color: #9b59b6; }
+            to { background-color: #c063ff; }
+        }
+        .badge-qtd { background: #e74c3c; color: white; padding: 2px 8px; border-radius: 10px; font-size: 12px; float: right; }
+        main { flex: 1; display: flex; flex-direction: column; position: relative; }
+        .topo-caixa-moderno { background: #2980b9; color: white; padding: 10px 25px; display: flex; justify-content: space-between; align-items: center; position: relative; }
+        .logo-imagem { width: 55px; height: 55px; object-fit: cover; border-radius: 50%; border: 2px solid white; background: white; }
+        .nome-loja-topo { font-size: 26px; font-weight: 900; text-transform: uppercase; }
+        .btn-sincronizar {
+            position: absolute;
+            top: 15px;
+            left: 58%;
+            transform: translateX(-50%);
+            padding: 8px 22px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+        .area-cupom { flex: 1; margin: 10px; background: #fff; border: 1px solid #ccc; padding: 15px; overflow-y: auto; border-radius: 5px; position: relative; }
+        table { width: 100%; border-collapse: collapse; }
+        table th { border-bottom: 2px solid #333; text-align: left; padding: 10px; font-size: 12px; color: #666; }
+        table td { padding: 12px 10px; border-bottom: 1px solid #eee; font-size: 16px; font-weight: bold; }
+        .painel-venda { background: #1a252f; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-top: 5px solid #27ae60; }
+        .total-valor { font-size: 45px; color: #2ecc71; font-weight: 900; }
+        .btn-acao { border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; }
+        .btn-corrigir { background: #e67e22; }
+        .btn-limpar { background: #e74c3c; }
+        .btn-fechar { background: #27ae60; }
+        .barra-comando { padding: 15px; background: #fff; border-top: 1px solid #ddd; position: relative; }
+        .input-principal { width: 100%; padding: 15px; font-size: 22px; border: 2px solid #2980b9; border-radius: 8px; outline: none; }
+        #listaSugestoes { position: absolute; top: 15px; left: 15px; right: 15px; background: white; border: 2px solid #2980b9; border-radius: 8px; display: none; z-index: 100; max-height: 200px; overflow-y: auto; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+        .sugestao-item { padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; justify-content: space-between; font-weight: bold; }
+        .sugestao-item:hover { background: #f0f7fd; }
+
+        /* TELA DE PEDIDOS E ENTREGAS */
+        .tela-pedidos { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 200; display: none; flex-direction: column; padding: 20px; }
+        .cabecalho-pedidos { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #2980b9; }
+        .abas { display: flex; gap: 8px; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .aba { padding: 8px 16px; border-radius: 6px 6px 0 0; cursor: pointer; font-weight: bold; font-size: 14px; }
+        .aba.ativa { background: #2980b9; color: white; }
+        .aba.inativa { background: #f0f0f0; color: #555; }
+
+        .item-pedido { padding: 15px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 6px; background: #f9f9f9; }
+        .aguardando_confirmacao { border-left: 5px solid #f39c12; }
+        .pago { border-left: 5px solid #27ae60; }
+        .concluido { border-left: 5px solid #2980b9; opacity: 0.9; }
+        .cancelado { border-left: 5px solid #7f8c8d; opacity: 0.7; }
+        .aguardando_entregador { border-left: 5px solid #9b59b6; }
+        .em_andamento { border-left: 5px solid #f39c12; }
+        .entregue { border-left: 5px solid #27ae60; }
+
+        .acoes-pedido { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+        .btn-status { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; color: white; }
+        .btn-comprovante { display: inline-block; margin: 8px 0; padding: 6px 12px; background: #9b59b6; color: white; border-radius: 4px; text-decoration: none; font-weight: bold; border: none; cursor: pointer; }
+        .btn-comprovante:hover { background: #8e44ad; }
+
+        /* Estilo para lista de itens do pedido */
+        .lista-itens {
+            margin: 12px 0;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .cab-itens {
+            background: #2c3e50;
+            color: white;
+            padding: 8px 12px;
+            font-weight: bold;
+        }
+        .corpo-itens {
+            padding: 10px;
+            background: #fff;
+        }
+        .linha-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        /* Estilo só para impressão */
+        @media print {
+            body * { visibility: hidden; }
+            .cupom-impressao, .cupom-impressao * { visibility: visible; }
+            .cupom-impressao { position: absolute; left: 0; top: 0; width: 100%; font-size: 14px; line-height: 1.4; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-container">
+    <nav>
+        <div class="menu-header">ESTOQUE</div>
+        <div class="lista-estoque-menu" id="menuEstoque"></div>
+        
+        <!--PEDIDOS  APP DE COMPRAS   -->
+        <div class="admin-sidebar" style="border-top: 2px solid #9b59b6;">
+            <button class="btn-menu btn-pedidos" id="botaoCompras" onclick="abrirTelaPedidos()">📦Compras On-line <span id="badgeGeral" class="badge-qtd">0</span></button>
+        </div>
+
+        <div class="admin-sidebar">
+            <h4 id="labelAdmin" style="color:white; font-size:11px; margin-bottom:5px;">CADASTRAR / EDITAR</h4>
+            <input type="text" id="addCod" placeholder="Cód. Barras">
+            <input type="text" id="addNome" placeholder="Nome do Item">
+            <input type="number" id="addPreco" step="0.01" placeholder="Preço R$">
+            <input type="number" id="addQtd" step="0.001" placeholder="Qtd p/ Adicionar">
+            
+            <select id="addUnidade">
+                <option value="UN">Unidade (un) - Valor Fixo</option>
+                <option value="KG">Quilo (kg) - Peso/Gramas</option>
+            </select>
+
+            <button class="btn-salvar" onclick="salvarNoEstoque()">ATUALIZAR ESTOQUE</button>
+            <button class="btn-zap" onclick="enviarRelatorioZap()">Relatório WhatsApp</button>
+        </div>
+    </nav>
+
+    <main>
+        <div class="topo-caixa-moderno">
+            <div style="display:flex; align-items:center; gap:15px;">
+                <img src="/static/logo.png" class="logo-imagem">
+                <div class="nome-loja-topo">{NOME_LOJA}</div>
+            </div>
+            <button id="btnSincronizar" class="btn-sincronizar" style="background: #e67e22; color: white;" onclick="alternarSincronizacao()">SINCRONIZAR: OFF</button>
+            <div id="caixaStatus" style="font-size: 28px; font-weight: bold; border: 2px solid #2ecc71; color: #2ecc71; padding: 5px 20px; border-radius: 15px;"> CAIXA LIVRE</div>
+        </div>
+
+        <div class="area-cupom">
+            <table id="tabelaCupom">
+                <thead><tr><th>PRODUTO</th><th style="text-align:center;">QTD/PESO</th><th style="text-align:right;">TOTAL</th></tr></thead>
+                <tbody id="corpoTabela"></tbody>
+            </table>
+            <div id="listaSugestoes"></div>
+        </div>
+
+        <div class="painel-venda">
+            <div><span style="font-size:12px; color:#bdc3c7;">TOTAL:</span><br><span class="total-valor" id="totalGeral">R$ 0,00</span></div>
+            <div style="display:flex; gap:10px;">
+                <button class="btn-acao btn-corrigir" onclick="corrigirUltimo()">CORRIGIR</button>
+                <button class="btn-acao btn-limpar" onclick="limparVenda()">LIMPAR</button>
+                <button class="btn-acao btn-fechar" onclick="concluirVenda()">FINALIZAR (F2)</button>
+            </div>
+        </div>
+
+        <div class="barra-comando">
+            <input type="text" id="campoBusca" class="input-principal" placeholder="Busque ou use o leitor..." autofocus>
+        </div>
+
+        <!-- TELA ADMIN: PEDIDOS + ENTREGAS -->
+        <div class="tela-pedidos" id="telaPedidos">
+            <div class="cabecalho-pedidos">
+                <h2>📋 Painel de Controle</h2>
+                <div>
+                    <button class="btn-acao btn-corrigir" onclick="carregarDadosAtuais()">🔄 Atualizar Tudo</button>
+                    <button class="btn-acao btn-limpar" onclick="fecharTelaPedidos()">❌ Fechar</button>
+                </div>
+            </div>
+
+            <!-- ABAS DE NAVEGAÇÃO -->
+            <div class="abas">
+                <div class="aba ativa" onclick="mudarAba('pedidos')">📦 Pedidos</div>
+                <div class="aba inativa" onclick="mudarAba('entregas')">🚚 Entregas</div>
+            </div>
+
+            <!-- CONTEÚDO DAS ABAS -->
+            <div id="conteudoAba" style="overflow-y: auto; flex: 1;"></div>
+        </div>
+    </main>
+</div>
+
+<!-- Área invisível para impressão -->
+<div id="areaImpressao" class="cupom-impressao" style="display:none;"></div>
+
+<script>
+    // 📌 DADOS DINÂMICOS DA LOJA - PREENCHIDOS AUTOMATICAMENTE
+    const ID_LOJA      = "{ID_LOJA}";
+    const CNPJ_LOJA    = "{CNPJ_LOJA}";
+    const NOME_LOJA    = "{NOME_LOJA}";
+    const SERVIDOR     = "{SERVIDOR}";
+    const CODIGO_FINAL = "{CODIGO_FINAL}";
+    const CHAVE_PIX    = "{CHAVE_PIX}";
+    const TITULAR_PIX  = "{TITULAR_PIX}";
+    const CIDADE_PIX   = "{CIDADE_PIX}";
+
+    let abaAtual = "pedidos";
+    let estoque = [];
+    let itensVenda = [];
+    let totalVenda = 0;
+    let sincronizarAtivo = false;
+    let dadosClienteAtual = {};
+
+    // ---------------------- FUNÇÕES GERAIS ----------------------
+    async function carregarEstoque() {
+        const resp = await fetch(`${SERVIDOR}/api/obter-estoque/${ID_LOJA}`);
+        const dados = await resp.json();
+        estoque = dados.produtos || [];
+        atualizarMenuLateral();
+    }
+
+    function atualizarMenuLateral() {
+        const menu = document.getElementById('menuEstoque');
+        menu.innerHTML = "";
+        estoque.sort((a,b) => a.nome.localeCompare(b.nome)).forEach(p => {
+            let unidade = p.unidade || 'UN';
+            let qtdFormatada = unidade === 'KG' ? parseFloat(p.quantidade).toFixed(3) : parseInt(p.quantidade);
+            
+            menu.innerHTML += `
+                <div class="item-estoque">
+                    <div class="info-produto"><strong>${p.nome}</strong><br>R$ ${p.preco.toFixed(2)}</div>
+                    <div style="display:flex; align-items:center; gap:5px;">
+                        <span class="qtd-badge">${qtdFormatada} <small>${unidade.toLowerCase()}</small></span>
+                        <button style="border:none; cursor:pointer;" onclick="carregarParaEditar('${p.codigo}')">📝</button>
+                    </div>
+                </div>`;
+        });
+    }
+
+    function addAoCupom(p) {
+        let unidade = p.unidade || 'UN';
+        let qtd = 0;
+        
+        if (unidade === 'KG') {
+            let inputPeso = prompt(`PESO para: ${p.nome}\n(Use ponto para gramas, ex: 0.500)`, "1.000");
+            if (inputPeso === null) return; 
+            qtd = parseFloat(inputPeso.replace(',', '.'));
+        } else {
+            let inputQtd = prompt(`QUANTIDADE (Unidades) para: ${p.nome}`, "1");
+            if (inputQtd === null) return; 
+            qtd = parseInt(inputQtd); 
+        }
+        
+        if (isNaN(qtd) || qtd <= 0) return alert("Valor inválido!");
+
+        let subtotal = p.preco * qtd;
+
+        let itemVenda = {
+            cod: p.codigo,
+            nome: p.nome,
+            preco: p.preco,
+            qtd: qtd, 
+            unidade: unidade,
+            totalItem: subtotal
+        };
+
+        itensVenda.push(itemVenda);
+        totalVenda += subtotal;
+
+        const corpo = document.getElementById('corpoTabela');
+        const novaLinha = corpo.insertRow();
+        
+        let exibicaoQtd = unidade === 'KG' ? qtd.toFixed(3) + " kg" : qtd + " un";
+
+        novaLinha.innerHTML = `
+            <td>${p.nome}</td>
+            <td style="text-align:center;">${exibicaoQtd}</td>
+            <td style="text-align:right;">R$ ${subtotal.toFixed(2)}</td>
+        `;
+        
+        document.getElementById('totalGeral').innerText = `R$ ${totalVenda.toFixed(2)}`;
+        document.getElementById('caixaStatus').innerText = " CAIXA OCUPADO";
+        document.getElementById('caixaStatus').style.borderColor = "#e74c3c";
+        document.getElementById('caixaStatus').style.color = "#e74c3c";
+    }
+
+    async function concluirVenda() {
+        if(itensVenda.length === 0) return;
+
+        const cliente = dadosClienteAtual || { nome: "Não informado", telefone: "", endereco: "Não informado" };
+        const dataHora = new Date().toLocaleString('pt-BR');
+
+        const conteudoCupom = `
+            <div style="width: 300px; margin: 0 auto; font-family: Arial, sans-serif;">
+                <h2 style="text-align: center; margin: 10px 0;">${NOME_LOJA}</h2>
+                <p style="text-align: center; font-size: 12px;">CNPJ/CPF: ${CNPJ_LOJA}</p>
+                <p style="text-align: center; font-size: 12px;">Data/Hora: ${dataHora}</p>
+                <hr>
+                <h4>DADOS DO CLIENTE:</h4>
+                <p><strong>Nome:</strong> ${cliente.nome}</p>
+                <p><strong>Contato:</strong> ${cliente.telefone || 'Não informado'}</p>
+                <p><strong>Endereço:</strong> ${cliente.endereco || 'Não informado'}</p>
+                <hr>
+                <h4>ITENS DO PEDIDO:</h4>
+                <table style="width: 100%; font-size: 13px;">
+                    <tr><th>Produto</th><th>Qtd</th><th style="text-align:right;">Valor</th></tr>
+                    ${itensVenda.map(i => `
+                        <tr>
+                            <td>${i.nome}</td>
+                            <td>${i.qtd} ${i.unidade}</td>
+                            <td style="text-align:right;">R$ ${i.totalItem.toFixed(2).replace('.', ',')}</td>
+                        </tr>
+                    `).join('')}
+                </table>
+                <hr>
+                <h3 style="text-align: right;">TOTAL: R$ ${totalVenda.toFixed(2).replace('.', ',')}</h3>
+                <br><br>
+                <p style="text-align: center; font-size: 11px;">Obrigado pela preferência!</p>
+            </div>
+        `;
+
+        const areaImpressao = document.getElementById('areaImpressao');
+        areaImpressao.innerHTML = conteudoCupom;
+        areaImpressao.style.display = 'block';
+
+        await fetch(`${SERVIDOR}/api/registrar-venda`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                idLoja: ID_LOJA,
+                itens: itensVenda,
+                total: totalVenda,
+                cliente: cliente,
+                origem: "PDV"
+            })
+        });
+
+        window.print();
+        areaImpressao.style.display = 'none';
+        limparVenda();
+    }
+
+    function carregarParaEditar(codigo) {
+        const p = estoque.find(item => item.codigo === codigo);
+        if(p) {
+            document.getElementById('addCod').value = p.codigo;
+            document.getElementById('addNome').value = p.nome;
+            document.getElementById('addPreco').value = p.preco;
+            document.getElementById('addQtd').value = p.quantidade;
+            document.getElementById('addUnidade').value = p.unidade || 'UN';
+            document.getElementById('labelAdmin').innerText = "EDITANDO PRODUTO";
+            document.getElementById('addNome').focus();
+        }
+    }
+
+    async function salvarNoEstoque() {
+        const item = {
+            id_loja: ID_LOJA,
+            codigo: document.getElementById('addCod').value,
+            nome: document.getElementById('addNome').value.toUpperCase(),
+            preco: parseFloat(document.getElementById('addPreco').value),
+            quantidade: parseFloat(document.getElementById('addQtd').value) || 0,
+            unidade: document.getElementById('addUnidade').value 
+        };
+        await fetch(`${SERVIDOR}/api/salvar-item`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(item)
+        });
+        carregarEstoque();
+        document.getElementById('addCod').value = "";
+        document.getElementById('addNome').value = "";
+        document.getElementById('addPreco').value = "";
+        document.getElementById('addQtd').value = "";
+        document.getElementById('labelAdmin').innerText = "CADASTRAR / EDITAR";
+    }
+
+    document.getElementById('campoBusca').oninput = function() {
+        const valor = this.value.toUpperCase();
+        const sug = document.getElementById('listaSugestoes');
+        sug.innerHTML = "";
+        sug.style.display = "none";
+        const exato = estoque.find(p => p.codigo === valor);
+        if(exato) { addAoCupom(exato); this.value = ""; return; }
+        
+        const busca = estoque.filter(p => p.nome.includes(valor));
+        if(busca.length > 0 && valor.length >= 2) {
+            sug.style.display = "block";
+            busca.forEach(p => {
+                const div = document.createElement('div');
+                div.className = "sugestao-item";
+                div.innerHTML = `<span>${p.nome}</span><span>R$ ${p.preco.toFixed(2)}</span>`;
+                div.onclick = () => { addAoCupom(p); sug.style.display="none"; document.getElementById('campoBusca').value=""; };
+                sug.appendChild(div);
+            });
+        }
+    };
+
+    function limparVenda() { 
+        dadosClienteAtual = {};
+        itensVenda = [];
+        totalVenda = 0;
+        const corpo = document.getElementById("corpoTabela");
+        corpo.innerHTML = "";
+        document.getElementById("totalGeral").innerText = `R$ 0,00`;
+        document.getElementById("caixaStatus").innerText = " CAIXA LIVRE";
+        document.getElementById("caixaStatus").style.borderColor = "#2ecc71";
+        document.getElementById("caixaStatus").style.color = "#2ecc71";
+    }
+
+    function corrigirUltimo() {
+        if(itensVenda.length > 0) {
+            const removido = itensVenda.pop();
+            totalVenda -= removido.totalItem;
+            const tabela = document.getElementById('corpoTabela');
+            tabela.deleteRow(tabela.rows.length - 1);
+            document.getElementById('totalGeral').innerText = `R$ ${totalVenda.toFixed(2)}`;
+            if(itensVenda.length === 0) {
+                document.getElementById('caixaStatus').innerText = " CAIXA LIVRE";
+                document.getElementById('caixaStatus').style.borderColor = "#2ecc71";
+                document.getElementById('caixaStatus').style.color = "#2ecc71";
+            }
+        }
+    }
+
+    async function enviarRelatorioZap() {
+        alert(`Relatório de estoque da loja ${NOME_LOJA}\nID: ${ID_LOJA}\nCNPJ: ${CNPJ_LOJA}`);
+    }
+
+    async function alternarSincronizacao() {
+        sincronizarAtivo = !sincronizarAtivo;
+        const btn = document.getElementById('btnSincronizar');
+        if(sincronizarAtivo) {
+            btn.textContent = "SINCRONIZAR: ON";
+            btn.style.background = "#27ae60";
+        } else {
+            btn.textContent = "SINCRONIZAR: OFF";
+            btn.style.background = "#e67e22";
+        }
+    }
+
+    // ---------------------- FUNÇÕES DO PAINEL ADMIN ----------------------
+    function mudarAba(novaAba) {
+        abaAtual = novaAba;
+        document.querySelectorAll('.aba').forEach(aba => aba.classList.remove('ativa'));
+        document.querySelectorAll('.aba')[novaAba === 'pedidos' ? 0 : 1].classList.add('ativa');
+        carregarDadosAtuais();
+    }
+
+    function abrirTelaPedidos() {
+        document.getElementById('telaPedidos').style.display = "flex";
+        carregarDadosAtuais();
+        document.getElementById('botaoCompras').classList.remove('piscando');
+    }
+
+    function fecharTelaPedidos() {
+        document.getElementById('telaPedidos').style.display = "none";
+    }
+
+    function carregarDadosAtuais() {
+        if (abaAtual === "pedidos") carregarPedidos();
+        if (abaAtual === "entregas") carregarEntregas();
+    }
+
+    function carregarPedidoNoCaixa(pedido) {
+        limparVenda();
+        dadosClienteAtual = pedido.cliente || {};
+        itensVenda = [];
+        totalVenda = 0;
+        const corpo = document.getElementById("corpoTabela");
+
+        if (!pedido.itens || !Array.isArray(pedido.itens) || pedido.itens.length === 0) {
+            alert("❌ Este pedido não possui itens cadastrados!");
+            return;
+        }
+
+        pedido.itens.forEach(i => {
+            const produtoCadastrado = estoque.find(est => est.codigo === i.cod);
+            const qtd = parseFloat(i.qtd) || 0;
+            let nomeFinal, unidadeFinal, precoFinal;
+
+            if (produtoCadastrado) {
+                nomeFinal = produtoCadastrado.nome;
+                unidadeFinal = produtoCadastrado.unidade || "UN";
+                precoFinal = produtoCadastrado.preco;
+            } else {
+                nomeFinal = i.nome || "Produto não cadastrado";
+                unidadeFinal = i.unidade || "UN";
+                precoFinal = parseFloat(i.preco) || 0;
+            }
+
+            const subt = qtd * precoFinal;
+
+            const item = {
+                cod: i.cod || "",
+                nome: nomeFinal,
+                preco: precoFinal,
+                qtd: qtd,
+                unidade: unidadeFinal,
+                totalItem: subt
+            };
+
+            itensVenda.push(item);
+            totalVenda += subt;
+
+            const qtdTxt = unidadeFinal === "KG" ? `${qtd.toFixed(3)} kg` : `${qtd} ${unidadeFinal.toLowerCase()}`;
+            const linha = corpo.insertRow();
+            linha.innerHTML = `
+                <td>${nomeFinal}</td>
+                <td style="text-align:center;">${qtdTxt}</td>
+                <td style="text-align:right;">R$ ${subt.toFixed(2).replace('.', ',')}</td>
+            `;
+        });
+
+        document.getElementById("totalGeral").innerText = `R$ ${totalVenda.toFixed(2).replace('.', ',')}`;
+        document.getElementById("caixaStatus").innerText = " CAIXA OCUPADO";
+        document.getElementById("caixaStatus").style.borderColor = "#e74c3c";
+        document.getElementById("caixaStatus").style.color = "#e74c3c";
+    }
+
+    async function marcarComoPago(pedido) {
+        if (!confirm("Confirmar que este pedido já foi pago?\nEle será enviado diretamente para o caixa para finalização.")) return;
+        try {
+            const resp = await fetch(`${SERVIDOR}/api/pedidos/atualizar-status`, {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({ pedido_id: pedido.id, novo_status: "pago" })
+            });
+            const dados = await resp.json();
+            if (dados.sucesso) {
+                fecharTelaPedidos();
+                carregarPedidoNoCaixa(pedido);
+            } else {
+                alert("❌ Erro: " + dados.mensagem);
+            }
+        } catch (erro) {
+            alert("❌ Erro de conexão: " + erro.message);
+        }
+    }
+
+    async function alterarStatus(id, status) {
+        try {
+            await fetch(`${SERVIDOR}/api/pedidos/atualizar-status`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ pedido_id: id, novo_status: status })
+            });
+            carregarDadosAtuais();
+        } catch (erro) {
+            alert("Erro ao alterar status: " + erro.message);
+        }
+    }
+
+    async function carregarPedidos() {
+        try {
+            const resp = await fetch(`${SERVIDOR}/api/pedidos/disponiveis`);
+            const dados = await resp.json();
+            const pedidos = dados.pedidos || [];
+            const lista = document.getElementById('conteudoAba');
+            const badge = document.getElementById('badgeGeral');
+            const botaoCompras = document.getElementById('botaoCompras');
+            
+            const pedidosExibir = pedidos.filter(p => 
+                p.status === "aguardando_confirmacao" || p.status === "novo"
+            );
+            const qtdPendentes = pedidosExibir.length;
+            badge.textContent = qtdPendentes;
+
+            if (qtdPendentes > 0 && document.getElementById('telaPedidos').style.display !== "flex") {
+                botaoCompras.classList.add('piscando');
+            } else {
+                botaoCompras.classList.remove('piscando');
+            }
+            
+            if(pedidosExibir.length === 0) {
+                lista.innerHTML = "<p style='text-align:center; padding:40px; color:#777;'>Nenhum pedido pendente no momento.</p>";
+                return;
+            }
+
+            lista.innerHTML = pedidosExibir.map(pedido => {
+                const itens = Array.isArray(pedido.itens) ? pedido.itens : [];
+                let subtotalCalculado = 0;
+                let listaItensHtml = "";
+
+                if (itens.length > 0) {
+                    listaItensHtml = `
+                    <div class="lista-itens">
+                        <div class="cab-itens">🛒 Itens do Pedido</div>
+                        <div class="corpo-itens">
+                            ${itens.map(i => {
+                                const produtoCadastrado = estoque.find(est => est.codigo === i.cod);
+                                const qtd = parseFloat(i.qtd) || 0;
+
+                                let nomeFinal, unidadeFinal, precoFinal;
+                                if (produtoCadastrado) {
+                                    nomeFinal = produtoCadastrado.nome;
+                                    unidadeFinal = produtoCadastrado.unidade || "UN";
+                                    precoFinal = produtoCadastrado.preco;
+                                } else {
+                                    nomeFinal = i.nome || "Produto não cadastrado";
+                                    unidadeFinal = i.unidade || "UN";
+                                    precoFinal = parseFloat(i.preco) || 0;
+                                }
+
+                                const valorItem = qtd * precoFinal;
+                                subtotalCalculado += valorItem;
+
+                                const qtdFormatada = unidadeFinal === "KG" 
+                                    ? `${qtd.toFixed(3)} kg` 
+                                    : `${Math.round(qtd)} ${unidadeFinal.toLowerCase()}`;
+                                const valorTotal = valorItem.toFixed(2).replace('.', ',');
+
+                                return `<div class="linha-item"><span>${qtdFormatada} - ${nomeFinal}</span><span>R$ ${valorTotal}</span></div>`;
+                            }).join('')}
+                        </div>
+                    </div>`;
+                } else {
+                    listaItensHtml = `<p style="color:#777; text-align:center; padding:8px; border:1px solid #eee; border-radius:6px; margin:10px 0;">Nenhum item cadastrado neste pedido</p>`;
+                    subtotalCalculado = pedido.valor_total || 0;
+                }
+
+                const taxa = pedido.taxa_entrega || 0;
+                const totalCalculado = subtotalCalculado + taxa;
+
+                const cliente = pedido.cliente || { nome: "Não informado", telefone: "Não informado", endereco: "Não informado" };
+                const statusTexto = pedido.status ? pedido.status.replace('_', ' ').toUpperCase() : 'PENDENTE';
+
+                return `
+                <div class="item-pedido ${pedido.status || 'novo'}">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <h3>Pedido #${pedido.id || '---'}</h3>
+                        <span style="font-weight:bold; font-size:13px; text-transform:uppercase; padding:4px 8px; border-radius:4px; background:rgba(0,0,0,0.05);">
+                            ${statusTexto}
+                        </span>
+                    </div>
+                    <p><strong>Data/Hora:</strong> ${pedido.data_hora || 'Não informado'}</p>
+                    <p><strong>Cliente:</strong> ${cliente.nome}</p>
+                    <p><strong>Contato:</strong> ${cliente.telefone}</p>
+                    <p><strong>Endereço:</strong> ${cliente.endereco}</p>
+                    <div style="margin:8px 0; padding:8px; background:#f0f0f0; border-radius:4px;">
+                        <p><strong>Subtotal:</strong> R$ ${subtotalCalculado.toFixed(2).replace('.', ',')}</p>
+                        ${taxa > 0 ? `<p><strong>Taxa Entrega:</strong> R$ ${taxa.toFixed(2).replace('.', ',')}</p>` : ''}
+                        <p><strong>Total:</strong> <strong style="font-size:15px; color:#27ae60;">R$ ${totalCalculado.toFixed(2).replace('.', ',')}</strong></p>
+                    </div>
+                    
+                    ${listaItensHtml}
+
+                    <div class="acoes-pedido">
+                        <button class="btn-status" style="background:#3498db" onclick="carregarPedidoNoCaixa(${JSON.stringify(pedido).replace(/"/g, '&quot;')})">📥 Carregar no Caixa</button>
+                        <button class="btn-status" style="background:#27ae60" onclick="marcarComoPago(${JSON.stringify(pedido).replace(/"/g, '&quot;')})">✅ Marcar como Pago</button>
+                        <button class="btn-status" style="background:#e74c3c" onclick="alterarStatus('${pedido.id}', 'cancelado')">❌ Cancelar / Excluir</button>
+                    </div>
+                </div>
+                `;
+            }).join('');
+
+        } catch (erro) {
+            document.getElementById('conteudoAba').innerHTML = `<p style='color:red; text-align:center; padding:30px;'>Erro: ${erro.message}</p>`;
+        }
+    }
+
+    async function carregarEntregas() {
+        try {
+            const resp = await fetch(`${SERVIDOR}/api/entregador/entregas-disponiveis`);
+            const dados = await resp.json();
+            const entregas = dados.entregas || [];
+            const lista = document.getElementById('conteudoAba');
+            
+            if (!entregas || entregas.length === 0) {
+                lista.innerHTML = "<p style='text-align:center; padding:40px; color:#777;'>Nenhuma entrega cadastrada.</p>";
+                return;
+            }
+
+            lista.innerHTML = entregas.map(e => {
+                const cliente = e.cliente || {};
+                const nomeCliente = cliente.nome || 'Não informado';
+                const contatoCliente = cliente.telefone || 'Não informado';
+                const enderecoCliente = cliente.endereco || 'Não informado';
+                const valorTotal = e.valor_total ? Number(e.valor_total).toFixed(2).replace('.', ',') : '0,00';
+                const statusTexto = e.status ? e.status.replace('_', ' ').toUpperCase() : 'PENDENTE';
+
+                return `
+                <div class="item-pedido ${e.status || ''}">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <h3>Entrega #${e.id || '---'}</h3>
+                        <span style="font-weight:bold; font-size:13px; text-transform:uppercase; padding:4px 8px; border-radius:4px; background:rgba(0,0,0,0.05);">
+                            ${statusTexto}
+                        </span>
+                    </div>
+                    <p><strong>Cliente:</strong> ${nomeCliente}</p>
+                    <p><strong>Endereço:</strong> ${enderecoCliente}</p>
+                    <p><strong>Contato:</strong> ${contatoCliente}</p>
+                    <p><strong>Valor Total:</strong> R$ ${valorTotal}</p>
+                    ${e.nome_entregador ? `<p><strong>Entregador:</strong> ${e.nome_entregador}</p>` : ''}
+                    <div class="acoes-pedido">
+                        ${e.status === 'aguardando_entregador' ? `
+                            <button class="btn-status" style="background:#f39c12" onclick="alterarStatusEntrega('${e.id}', 'em_andamento')">🚚 Iniciar Entrega</button>
+                            <button class="btn-status" style="background:#e74c3c" onclick="alterarStatusEntrega('${e.id}', 'cancelado')">❌ Cancelar</button>
+                        ` : ''}
+                        ${e.status === 'em_andamento' ? `
+                            <button class="btn-status" style="background:#27ae60" onclick="alterarStatusEntrega('${e.id}', 'entregue')">✅ Marcar como Entregue</button>
+                        ` : ''}
+                    </div>
+                </div>
+                `;
+            }).join('');
+
+        } catch (erro) {
+            document.getElementById('conteudoAba').innerHTML = `<p style='color:red; text-align:center; padding:30px;'>Erro ao carregar entregas: ${erro.message}</p>`;
+        }
+    }
+
+    async function alterarStatusEntrega(id, status) {
+        if (!confirm("Deseja alterar o status desta entrega?")) return;
+        try {
+            await fetch(`${SERVIDOR}/api/pedidos/atualizar-status`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ pedido_id: id, novo_status: status })
+            });
+            carregarEntregas();
+        } catch (erro) {
+            alert("Erro: " + erro.message);
+        }
+    }
+
+    window.onkeydown = (e) => { if(e.key === "F2") concluirVenda(); };
+    carregarEstoque();
+    setInterval(carregarPedidos, 5000);
+</script>
+</body>
+</html>

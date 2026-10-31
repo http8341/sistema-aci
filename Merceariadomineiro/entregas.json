@@ -1,0 +1,89 @@
+[
+    {
+        "id_entrega": "ENT-20260720144740",
+        "id_pedido": "20260720144740",
+        "id_loja": "41177958000130",
+        "nome_loja": "Mercearia Do Mineiro",
+        "endereco_loja": "Rua Antonio Rodrigues De Almeida 695, Jd Itaguaçú",
+        "cidade_loja": "Campinas",
+        "uf_loja": "SP",
+        "contato_loja": "19-99837-0620",
+        "cliente": "FRANCISCO ERIVAN CAVALCANTE SILVA",
+        "endereco": "Rua Pedro Paulo Columbari",
+        "contato": "19994790735",
+        "valor_total": 18.5,
+        "taxa_entrega": 10.0,
+        "itens": [
+            {
+                "cod": "1002",
+                "nome": "FEIJAO  BIGUA 1KG",
+                "preco": 8.5,
+                "qtd": 1.0,
+                "unidade": "UN"
+            }
+        ],
+        "status": "entregue",
+        "data": "20/07/2026 14:48:03",
+        "id_entregador": "1783429907571",
+        "nome_entregador": "Francisco Erivan Cavalcante",
+        "data_aceite": "20/07/2026 14:48:35",
+        "data_entrega": "20/07/2026 14:48:52"
+    },
+    {
+        "id_entrega": "ENT-20260720153453",
+        "id_pedido": "20260720153453",
+        "id_loja": "41177958000130",
+        "nome_loja": "Mercearia Do Mineiro",
+        "endereco_loja": "Rua Antonio Rodrigues De Almeida 695, Jd Itaguaçú",
+        "cidade_loja": "Campinas",
+        "uf_loja": "SP",
+        "contato_loja": "19-99837-0620",
+        "cliente": "FRANCISCO ERIVAN CAVALCANTE SILVA",
+        "endereco": "Rua Pedro Paulo Columbari",
+        "contato": "19994790735",
+        "valor_total": 39.9,
+        "taxa_entrega": 10.0,
+        "itens": [
+            {
+                "cod": "1001",
+                "nome": "ARROZ CAMIL TIPO 1 5KG",
+                "preco": 29.9,
+                "qtd": 1.0,
+                "unidade": "UN"
+            }
+        ],
+        "status": "entregue",
+        "data": "20/07/2026 15:34:59",
+        "id_entregador": "1783429907571",
+        "nome_entregador": "Francisco Erivan Cavalcante",
+        "data_aceite": "20/07/2026 15:35:33",
+        "observacao_entrega": "",
+        "data_entrega": "20/07/2026 15:35:50"
+    },
+    {
+        "id_entrega": "ENT-20260723141503",
+        "id_pedido": "20260723141503",
+        "id_loja": "41177958000130",
+        "nome_loja": "Mercearia Do Mineiro",
+        "endereco_loja": "Rua ",
+        "cidade_loja": "Campinas",
+        "uf_loja": "SP",
+        "contato_loja": "19-99479-0735",
+        "cliente": "FRANCISCO ERIVAN CAVALCANTE SILVA",
+        "endereco": "Rua Pedro Paulo Columbari",
+        "contato": "19994790735",
+        "valor_total": 55.0,
+        "taxa_entrega": 10.0,
+        "itens": [
+            {
+                "cod": "2001",
+                "nome": "CONTRA FILE KG",
+                "preco": 45.0,
+                "qtd": 1.0,
+                "unidade": "KG"
+            }
+        ],
+        "status": "aguardando_entregador",
+        "data": "23/07/2026 14:15:31"
+    }
+]

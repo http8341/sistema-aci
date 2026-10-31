@@ -1,0 +1,10 @@
+
+{
+    "nome_loja": "Mercearia Do Mineiro",
+    "tipo_id": "CNPJ",
+    "id_loja": "41177958000130",
+    "servidor_principal": "http://192.168.15.82:5000",
+    "recebe_pedidos": true,
+    "loja_aberta": true,
+    "modo_com_nota": false
+}

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatórios - A.C.I</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        fundo: '#0F0F1A',
+                        menu: '#121220',
+                        card: '#1A1A2E',
+                        verde: '#10B981',
+                        branco: '#FFFFFF',
+                        cinza: '#B0B0C0',
+                        amarelo: '#FBBF24',
+                        azul: '#3B82F6',
+                        erro: '#EF4444',
+                        sucesso: '#10B981'
+                    },
+                    fontFamily: {
+                        sans: ['Arial', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background-color: #0F0F1A; color: #E0E0FF; min-height: 100vh; }
+        .barra-topo { background-color: #0A0A12; border-bottom: 1px solid #2A2A40; padding: 24px; text-align: center; }
+        .barra-topo h2 { font-size: 26px; font-weight: bold; }
+        .texto-verde { color: #10B981; }
+        .texto-branco { color: #FFFFFF; }
+        .menu-lateral { background-color: #121220; min-height: calc(100vh - 90px); width: 260px; padding: 24px 16px; }
+        .menu-lateral a { display: flex; align-items: center; gap: 12px; padding: 14px 16px; margin: 6px 0; border-radius: 6px; color: #B0B0C0; text-decoration: none; transition: all 0.2s; }
+        .menu-lateral a:hover, .menu-lateral a.ativo { background-color: #1A1A2E; color: #FFFFFF; border-left: 3px solid #10B981; }
+        .conteudo { flex: 1; padding: 32px; }
+        input, select { background: #121220; border: 1px solid #2A2A40; color: #FFFFFF; padding: 10px; border-radius: 4px; width: 100%; margin: 6px 0; font-size: 15px; }
+        input:focus, select:focus { outline: none; border-color: #10B981; }
+        label { font-weight: 500; color: #E0E0FF; display: block; margin-top: 8px; }
+        button { border: none; padding: 10px 16px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+        .btn-buscar { background: #3B82F6; color: white; }
+        .btn-buscar:hover { background: #2563EB; }
+        .btn-exportar { background: #8B5CF6; color: white; margin-left: 8px; }
+        .btn-exportar:hover { background: #7C3AED; }
+        .mensagem { padding: 14px; border-radius: 4px; margin-bottom: 20px; font-weight: 500; display: none; }
+        .sucesso { background: rgba(16, 185, 129, 0.15); border: 1px solid #10B981; color: #34D399; }
+        .erro { background: rgba(239, 68, 68, 0.15); border: 1px solid #EF4444; color: #F87171; }
+        table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #2A2A40; }
+        th { background: #121220; color: #FFFFFF; }
+        tr:hover { background: #1A1A2E; }
+        .card-info { background: #1A1A2E; border: 1px solid #2A2A40; border-radius: 6px; padding: 16px; text-align: center; }
+        .valor-grande { font-size: 24px; font-weight: bold; color: #10B981; margin-top: 8px; }
+    </style>
+</head>
+<body>
+    <div class="barra-topo">
+        <h2><span class="texto-verde">A.C.I</span><span class="texto-branco"> - Aplicação Comercial Integrada</span></h2>
+    </div>
+
+    <div class="flex">
+        <!-- Menu Lateral -->
+        <div class="menu-lateral">
+            <div class="mb-8 pb-4 border-b border-gray-700">
+                <h1 class="text-2xl font-bold text-amarelo">SISTEMA A.C.I</h1>
+                <p class="text-sm text-cinza">Painel Administrativo</p>
+            </div>
+            <nav>
+                <a href="/">🏠 Início</a>
+                <a href="/cadastrar-lojas">🏪 Cadastrar Lojas</a>
+                <a href="/gerenciar-entregadores">🚚 Gerenciar Entregadores</a>
+                <a href="/vendas-gerais">🛒 Vendas Gerais</a>
+                <a href="/prestacao-contas">📋 Prestação de Contas</a>
+                <a href="/relatorios" class="ativo">📊 Relatórios</a>
+                <a href="/configuracoes">⚙️ Configurações</a>
+            </nav>
+        </div>
+
+        <!-- Área de Conteúdo -->
+        <div class="conteudo">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">📊 Relatórios por Loja</h2>
+                <button class="btn-exportar" onclick="exportarDados()">📥 Exportar CSV</button>
+            </div>
+
+            <!-- Caixa de mensagem -->
+            <div id="caixaMensagem" class="mensagem"></div>
+
+            <!-- Seleção de Loja e Período -->
+            <div class="bg-card p-6 rounded-lg border border-gray-700 mb-6">
+                <h3 class="text-lg font-semibold mb-4">Filtrar Dados</h3>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label>Loja</label>
+                        <select id="idLoja" required>
+                            <option value="">Carregando...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Ano</label>
+                        <select id="ano">
+                            <option value="2026">2026</option>
+                            <option value="2025">2025</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Mês</label>
+                        <select id="mes">
+                            <option value="">Todos</option>
+                            <option value="01">Janeiro</option>
+                            <option value="02">Fevereiro</option>
+                            <option value="03">Março</option>
+                            <option value="04">Abril</option>
+                            <option value="05">Maio</option>
+                            <option value="06">Junho</option>
+                            <option value="07">Julho</option>
+                            <option value="08">Agosto</option>
+                            <option value="09">Setembro</option>
+                            <option value="10">Outubro</option>
+                            <option value="11">Novembro</option>
+                            <option value="12">Dezembro</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end">
+                        <button class="btn-buscar w-full" onclick="carregarRelatorio()">🔍 Gerar Relatório</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resumo Rápido -->
+            <div id="resumoRapido" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6" style="display: none;">
+                <div class="card-info">
+                    <p class="text-cinza">Total de Entregas</p>
+                    <div class="valor-grande" id="qtdVendas">0</div>
+                </div>
+                <div class="card-info">
+                    <p class="text-cinza">Valor Total Vendido</p>
+                    <div class="valor-grande" id="valorTotal">R$ 0,00</div>
+                </div>
+                <div class="card-info">
+                    <p class="text-cinza">Entregas Concluídas</p>
+                    <div class="valor-grande" id="entregasConcluidas">0</div>
+                </div>
+            </div>
+
+            <!-- Tabela de Dados -->
+            <div class="bg-card p-6 rounded-lg border border-gray-700 overflow-x-auto">
+                <h3 class="text-lg font-semibold mb-4">Detalhamento das Operações</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID Pedido</th>
+                            <th>Data</th>
+                            <th>Cliente</th>
+                            <th>Valor (R$)</th>
+                            <th>Taxa Entrega (R$)</th>
+                            <th>Entregador</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelaRelatorio">
+                        <tr><td colspan="7" class="text-center text-cinza py-4">Selecione uma loja e clique em gerar relatório...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const caixaMensagem = document.getElementById("caixaMensagem");
+        const tabelaRelatorio = document.getElementById("tabelaRelatorio");
+        const divResumo = document.getElementById("resumoRapido");
+        let dadosCompletos = [];
+
+        // Carrega lista de lojas ao abrir
+        window.addEventListener("load", carregarLojas);
+
+        async function carregarLojas() {
+            try {
+                const res = await fetch("/api/listar-lojas");
+                const dados = await res.json();
+                const select = document.getElementById("idLoja");
+                select.innerHTML = `<option value="">Selecione uma loja</option>`;
+
+                if (dados.sucesso && dados.lojas.length > 0) {
+                    // Ordena as lojas por nome e mostra APENAS o nome na lista
+                    dados.lojas.sort((a, b) => a.nome.localeCompare(b.nome));
+                    dados.lojas.forEach(loja => {
+                        const op = document.createElement("option");
+                        op.value = loja.id; // Usa o ID internamente para filtrar
+                        op.textContent = loja.nome; // Mostra só o nome para o usuário
+                        select.appendChild(op);
+                    });
+                } else {
+                    select.innerHTML = `<option value="">Nenhuma loja cadastrada</option>`;
+                }
+            } catch (erro) {
+                console.error("Erro ao carregar lojas:", erro);
+                mostrarMensagem("Erro ao carregar lista de lojas", "erro");
+                const select = document.getElementById("idLoja");
+                select.innerHTML = `<option value="">Erro ao carregar</option>`;
+            }
+        }
+
+        async function carregarRelatorio() {
+            const idLoja = document.getElementById("idLoja").value;
+            const ano = document.getElementById("ano").value;
+            const mes = document.getElementById("mes").value;
+
+            if (!idLoja) {
+                mostrarMensagem("Selecione uma loja primeiro!", "erro");
+                return;
+            }
+
+            tabelaRelatorio.innerHTML = `<tr><td colspan="7" class="text-center text-cinza py-4">Carregando dados...</td></tr>`;
+            divResumo.style.display = "none";
+
+            try {
+                // Busca todas as entregas do sistema
+                const res = await fetch("/api/entregador/entregas-disponiveis");
+                const dados = await res.json();
+
+                if (!dados.sucesso) throw new Error("Não foi possível buscar os dados");
+
+                // Filtra por loja selecionada
+                let filtradas = dados.entregas.filter(v => v.id_loja === idLoja);
+
+                // Aplica filtro de ano e mês
+                if (ano || mes) {
+                    filtradas = filtradas.filter(entrega => {
+                        const dataEntrega = entrega.data ? new Date(entrega.data.split('/').reverse().join('-')) : null;
+                        if (!dataEntrega) return false;
+                        const anoOk = !ano || dataEntrega.getFullYear().toString() === ano;
+                        const mesOk = !mes || (dataEntrega.getMonth() + 1).toString().padStart(2, '0') === mes;
+                        return anoOk && mesOk;
+                    });
+                }
+
+                dadosCompletos = filtradas;
+
+                if (filtradas.length === 0) {
+                    tabelaRelatorio.innerHTML = `<tr><td colspan="7" class="text-center text-cinza py-4">Nenhuma operação encontrada para os filtros selecionados.</td></tr>`;
+                    return;
+                }
+
+                // Calcula resumo rápido
+                let totalValor = 0;
+                let totalTaxa = 0;
+                let concluidas = 0;
+
+                filtradas.forEach(entrega => {
+                    totalValor += Number(entrega.valor_total || 0);
+                    totalTaxa += Number(entrega.taxa_entrega || 0);
+                    if ((entrega.status || '').toLowerCase() === "entregue") concluidas++;
+                });
+
+                document.getElementById("qtdVendas").textContent = filtradas.length;
+                document.getElementById("valorTotal").textContent = `R$ ${totalValor.toFixed(2).replace(".", ",")}`;
+                document.getElementById("entregasConcluidas").textContent = concluidas;
+                divResumo.style.display = "grid";
+
+                // Monta tabela com os campos corretos
+                tabelaRelatorio.innerHTML = "";
+                filtradas.forEach(entrega => {
+                    let corStatus = "text-amarelo";
+                    if ((entrega.status || '').toLowerCase() === "entregue") corStatus = "text-verde";
+                    if ((entrega.status || '').toLowerCase() === "pendente") corStatus = "text-amarelo";
+                    if ((entrega.status || '').toLowerCase() === "cancelado") corStatus = "text-erro";
+
+                    const linha = document.createElement("tr");
+                    linha.innerHTML = `
+                        <td>${entrega.id_pedido || entrega.id_entrega || "-"}</td>
+                        <td>${entrega.data || "-"}</td>
+                        <td>${entrega.cliente || "-"}</td>
+                        <td>R$ ${Number(entrega.valor_total || 0).toFixed(2).replace(".", ",")}</td>
+                        <td>R$ ${Number(entrega.taxa_entrega || 0).toFixed(2).replace(".", ",")}</td>
+                        <td>${entrega.nome_entregador || "Aguardando"}</td>
+                        <td class="${corStatus} font-medium">${(entrega.status || "Pendente").toUpperCase()}</td>
+                    `;
+                    tabelaRelatorio.appendChild(linha);
+                });
+
+            } catch (erro) {
+                tabelaRelatorio.innerHTML = `<tr><td colspan="7" class="text-center text-red-400 py-4">${erro.message}</td></tr>`;
+            }
+        }
+
+        // Exporta os dados para CSV
+        function exportarDados() {
+            if (dadosCompletos.length === 0) {
+                mostrarMensagem("Gere um relatório primeiro para exportar!", "erro");
+                return;
+            }
+
+            const cabecalhos = ["ID Pedido", "Data", "Cliente", "Valor Total", "Taxa Entrega", "Entregador", "Status"];
+            const linhas = dadosCompletos.map(entrega => [
+                entrega.id_pedido || entrega.id_entrega || "",
+                entrega.data || "",
+                entrega.cliente || "",
+                Number(entrega.valor_total || 0).toFixed(2).replace(".", ","),
+                Number(entrega.taxa_entrega || 0).toFixed(2).replace(".", ","),
+                entrega.nome_entregador || "",
+                entrega.status || "Pendente"
+            ]);
+
+            const conteudoCSV = [cabecalhos, ...linhas].map(linha => linha.join(";")).join("\n");
+            const blob = new Blob([conteudoCSV], { type: "text/csv;charset=utf-8;" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `relatorio-${new Date().toISOString().slice(0,10)}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            mostrarMensagem("Relatório exportado com sucesso!", "sucesso");
+        }
+
+        function mostrarMensagem(texto, tipo) {
+            caixaMensagem.textContent = texto;
+            caixaMensagem.className = `mensagem ${tipo}`;
+            caixaMensagem.style.display = "block";
+            setTimeout(() => caixaMensagem.style.display = "none", 5000);
+        }
+    </script>
+</body>
+</html>

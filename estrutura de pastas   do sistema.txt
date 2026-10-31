@@ -1,0 +1,56 @@
+aci/
+│
+├── 📂 config/                      # Configurações gerais do sistema
+│
+├── 📂 lojas/                       # Dados individuais de cada loja
+│
+├── 📂 node_modules/                # Dependências do Node.js
+│
+├── 📂 relatorios/                  # Relatórios gerados pelo sistema
+
+│── 📂 UPLOADS/                     # Imagens
+
+├── 📂 servidor/                    # Backend → app.js, API, rotas
+│
+├── cadastrar-lojas.html             # Cadastro de novas lojas
+│
+├── configuracoes.html               # Configurações gerais do sistema
+│
+├── entregas.html                    # Gestão de entregas
+│
+├── estrutura de pastas do sistema   # Documento de referência da estrutura
+│
+├── gerenciar-entregadores.html      # Controle de entregadores
+│
+├── index.html                       # Página inicial → vitrine ACI
+│
+├── iniciar                          # Script de inicialização (.bat)
+│
+├── lojas-cadastradas.html           # Lista de lojas ativas
+│
+├── pdv-base.html                    # Modelo do PDV-LOJA / APK de compras
+│
+├── pedidos.html                     # Gestão de pedidos / entregadores
+│
+├── prestacao-contas.html            # Relatório + vendas online por loja individual / entregadores
+│
+├── rede-de-lojas.html               # Integração entre lojas → listar lojas online + liberar link de acesso às compras
+│
+├── relatorios.html                  # Painel de relatórios geral
+│
+└── vendas-gerais.html               # Visão consolidada de vendas por cada loja da rede
+
+
+
+Módulo	Pastas/Arquivos	Função Principal
+
+Núcleo / Backend	config/, servidor/, iniciar	Configurações, API, rotas, inicialização do sistema
+
+Gestão de Lojas	lojas/, cadastrar-lojas.html, lojas-cadastradas.html, rede-de-lojas.html
+Cadastro, dados individuais, integração e disponibilidade online
+
+Operações	pdv-base.html, pedidos.html, entregas.html, gerenciar-entregadores.html	PDV local, fluxo de pedidos, controle de entregadores e rotas
+Relatórios e Financeiro	relatorios/, relatorios.html, vendas-gerais.html, prestacao-contas.html	Dados consolidados, por loja, financeiro e desempenho de entregas
+Acesso ao Público	
+index.html, rede-de-lojas.html	Vitrine, catálogo e link de compras online por loja
+

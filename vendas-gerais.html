@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vendas Gerais - A.C.I</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        fundo: '#0F0F1A',
+                        menu: '#121220',
+                        card: '#1A1A2E',
+                        verde: '#10B981',
+                        branco: '#FFFFFF',
+                        cinza: '#B0B0C0',
+                        amarelo: '#FBBF24',
+                        erro: '#EF4444',
+                        sucesso: '#10B981'
+                    },
+                    fontFamily: {
+                        sans: ['Arial', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background-color: #0F0F1A; color: #E0E0FF; min-height: 100vh; }
+        .barra-topo { background-color: #0A0A12; border-bottom: 1px solid #2A2A40; padding: 24px; text-align: center; }
+        .barra-topo h2 { font-size: 26px; font-weight: bold; }
+        .texto-verde { color: #10B981; }
+        .texto-branco { color: #FFFFFF; }
+        .menu-lateral { background-color: #121220; min-height: calc(100vh - 90px); width: 260px; padding: 24px 16px; }
+        .menu-lateral a { display: flex; align-items: center; gap: 12px; padding: 14px 16px; margin: 6px 0; border-radius: 6px; color: #B0B0C0; text-decoration: none; transition: all 0.2s; }
+        .menu-lateral a:hover, .menu-lateral a.ativo { background-color: #1A1A2E; color: #FFFFFF; border-left: 3px solid #10B981; }
+        .conteudo { flex: 1; padding: 32px; }
+        input, select { background: #121220; border: 1px solid #2A2A40; color: #FFFFFF; padding: 10px; border-radius: 4px; width: 100%; margin: 6px 0; font-size: 15px; }
+        input:focus, select:focus { outline: none; border-color: #10B981; }
+        label { font-weight: 500; color: #E0E0FF; display: block; margin-top: 8px; }
+        button { border: none; padding: 10px 16px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+        .btn-filtrar { background: #3B82F6; color: white; }
+        .btn-filtrar:hover { background: #2563EB; }
+        .btn-nova { background: #10B981; color: white; }
+        .btn-nova:hover { background: #059669; }
+        .mensagem { padding: 14px; border-radius: 4px; margin-bottom: 20px; font-weight: 500; display: none; }
+        .sucesso { background: rgba(16, 185, 129, 0.15); border: 1px solid #10B981; color: #34D399; }
+        .erro { background: rgba(239, 68, 68, 0.15); border: 1px solid #EF4444; color: #F87171; }
+        table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #2A2A40; }
+        th { background: #121220; color: #FFFFFF; }
+        tr:hover { background: #1A1A2E; }
+        .status-pendente { color: #FBBF24; font-weight: bold; }
+        .status-aceita { color: #3B82F6; font-weight: bold; }
+        .status-concluida { color: #10B981; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="barra-topo">
+        <h2><span class="texto-verde">A.C.I</span><span class="texto-branco"> - Aplicação Comercial Integrada</span></h2>
+    </div>
+
+    <div class="flex">
+        <!-- Menu Lateral -->
+        <div class="menu-lateral">
+            <div class="mb-8 pb-4 border-b border-gray-700">
+                <h1 class="text-2xl font-bold text-amarelo">SISTEMA A.C.I</h1>
+                <p class="text-sm text-cinza">Painel Administrativo</p>
+            </div>
+            <nav>
+                <a href="/">🏠 Início</a>
+                <a href="/cadastrar-lojas">🏪 Cadastrar Lojas</a>
+                <a href="/gerenciar-entregadores">🚚 Gerenciar Entregadores</a>
+                <a href="/vendas-gerais" class="ativo">🛒 Vendas Gerais</a>
+                <a href="/prestacao-contas">📋 Prestação de Contas</a>
+                <a href="/relatorios">📊 Relatórios</a>
+                <a href="/configuracoes">⚙️ Configurações</a>
+            </nav>
+        </div>
+
+        <!-- Área de Conteúdo -->
+        <div class="conteudo">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">🛒 Controle de Vendas e Entregas</h2>
+                <button class="btn-nova" onclick="abrirFormNovaVenda()">➕ Nova Venda/Entrega</button>
+            </div>
+
+            <!-- Caixa de mensagem -->
+            <div id="caixaMensagem" class="mensagem"></div>
+
+            <!-- Filtros -->
+            <div class="bg-card p-6 rounded-lg border border-gray-700 mb-6">
+                <h3 class="text-lg font-semibold mb-4">Filtrar Resultados</h3>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label>Loja</label>
+                        <select id="filtroLoja">
+                            <option value="">Todas as lojas</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Status</label>
+                        <select id="filtroStatus">
+                            <option value="">Todos</option>
+                            <option value="AGUARDANDO_ENTREGADOR">Aguardando</option>
+                            <option value="ACEITA">Aceita</option>
+                            <option value="CONCLUIDA">Concluída</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Data Início</label>
+                        <input type="date" id="dataInicio">
+                    </div>
+                    <div class="flex items-end">
+                        <button class="btn-filtrar w-full" onclick="carregarVendas()">🔍 Filtrar</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabela de Vendas -->
+            <div class="bg-card p-6 rounded-lg border border-gray-700 overflow-x-auto">
+                <h3 class="text-lg font-semibold mb-4">Lista de Vendas / Entregas</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID Venda</th>
+                            <th>Loja</th>
+                            <th>Valor Total</th>
+                            <th>Status</th>
+                            <th>Entregador</th>
+                            <th>Data</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelaVendas">
+                        <tr><td colspan="6" class="text-center text-cinza py-4">Carregando dados...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SENHA_ADMIN = "ACI@2026";
+        const caixaMensagem = document.getElementById("caixaMensagem");
+
+        // Carrega dados ao abrir a página
+        window.addEventListener("load", () => {
+            carregarLojas();
+            carregarVendas();
+        });
+
+        // Carrega lista de lojas para o filtro
+        async function carregarLojas() {
+            try {
+                const res = await fetch("/api/listar-lojas", {
+                    headers: { "Authorization": `Bearer ${SENHA_ADMIN}` }
+                });
+                const dados = await res.json();
+                if (dados.sucesso) {
+                    const select = document.getElementById("filtroLoja");
+                    dados.lojas.forEach(loja => {
+                        const opcao = document.createElement("option");
+                        opcao.value = loja.id;
+                        opcao.textContent = `${loja.id} - ${loja.nome}`;
+                        select.appendChild(opcao);
+                    });
+                }
+            } catch (erro) {
+                console.log("Erro ao carregar lojas:", erro);
+            }
+        }
+
+        // Carrega e lista as vendas
+        async function carregarVendas() {
+            const tabela = document.getElementById("tabelaVendas");
+            tabela.innerHTML = `<tr><td colspan="6" class="text-center text-cinza py-4">Buscando vendas...</td></tr>`;
+
+            try {
+                // Por enquanto busca as entregas pendentes e em andamento
+                // (podemos expandir para buscar todas depois)
+                const res = await fetch("/api/entregador/entregas-disponiveis");
+                const dados = await res.json();
+
+                if (!dados.sucesso || dados.entregas.length === 0) {
+                    tabela.innerHTML = `<tr><td colspan="6" class="text-center text-cinza py-4">Nenhuma venda ou entrega encontrada.</td></tr>`;
+                    return;
+                }
+
+                tabela.innerHTML = "";
+                dados.entregas.forEach(venda => {
+                    const linha = document.createElement("tr");
+                    let classeStatus = "";
+                    if (venda.status === "AGUARDANDO_ENTREGADOR") classeStatus = "status-pendente";
+                    if (venda.status === "ACEITA") classeStatus = "status-aceita";
+                    if (venda.status === "CONCLUIDA") classeStatus = "status-concluida";
+
+                    linha.innerHTML = `
+                        <td>${venda.idVenda || "-"}</td>
+                        <td>${venda.idLoja || "-"}</td>
+                        <td>R$ ${(venda.valores?.total || 0).toFixed(2).replace(".", ",")}</td>
+                        <td class="${classeStatus}">${venda.status.replace("_", " ")}</td>
+                        <td>${venda.nomeEntregador || "Aguardando"}</td>
+                        <td>${venda.dataRegistro || "-"}</td>
+                    `;
+                    tabela.appendChild(linha);
+                });
+
+            } catch (erro) {
+                tabela.innerHTML = `<tr><td colspan="6" class="text-center text-red-400 py-4">Erro ao carregar dados.</td></tr>`;
+            }
+        }
+
+        // Função auxiliar para mensagens
+        function mostrarMensagem(texto, tipo) {
+            caixaMensagem.textContent = texto;
+            caixaMensagem.className = `mensagem ${tipo}`;
+            caixaMensagem.style.display = "block";
+            setTimeout(() => caixaMensagem.style.display = "none", 5000);
+        }
+
+        // Abre formulário de nova venda (pode ser expandido depois)
+        function abrirFormNovaVenda() {
+            mostrarMensagem("Funcionalidade de cadastro de venda será adicionada em breve!", "sucesso");
+        }
+    </script>
+</body>
+</html>

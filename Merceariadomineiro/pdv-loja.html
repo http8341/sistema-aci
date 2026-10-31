@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>PDV - Sistema Final</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+html, body { height: 100%; overflow: hidden; background: #222831; }
+body { display: flex; flex-direction: column; width: 100%; margin: 0; }
+.main-container { display: flex; flex: 1; height: 100vh; align-items: stretch; overflow: hidden; position: relative; }
+nav { width: 320px; background: #1e252f; color: white; display: flex; flex-direction: column; border-right: 2px solid #161b24; height: 100%; flex-shrink: 0; position: relative; z-index: 20; }
+.menu-header { background: #161b24; padding: 15px; text-align: center; font-weight: bold; text-transform: uppercase; font-size: 14px; }
+.lista-estoque-menu { flex: 1; overflow-y: auto; padding: 8px; min-height: 120px; }
+.item-estoque { padding: 10px 12px; border-bottom: 1px solid #34495e; font-size: 13px; display: flex; justify-content: space-between; align-items: center; gap: 8px; cursor: pointer; }
+.item-estoque:hover { background: #252d38; }
+.item-estoque-nome { flex: 1; cursor: pointer; }
+.qtd-badge { background: #27ae60; color: white; padding: 3px 6px; border-radius: 4px; font-weight: bold; min-width: 55px; text-align: center; font-size: 12px; }
+.btn-editar-item { background: #f39c12; color: white; border: none; padding: 3px 6px; border-radius: 4px; font-size: 11px; cursor: pointer; transition: background 0.2s; flex-shrink: 0; }
+.btn-editar-item:hover { background: #e67e22; }
+
+.menu-recolhivel { margin: 10px; border-radius: 6px; overflow: hidden; border: 1px solid #2c3440; }
+.menu-titulo { padding: 12px; background: #2980b9; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+.menu-conteudo { padding: 12px; background: #252d38; display: none; }
+.menu-conteudo.aberto { display: block; }
+
+.btn-pedidos-online { margin: 12px; padding: 14px; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; transition: all 0.3s; width: calc(100% - 24px); }
+.sem-pedido { background: #e74c3c; color: white; }
+.tem-pedido { background: #27ae60; color: white; animation: piscar 1s infinite alternate; }
+@keyframes piscar { from { opacity: 1; } to { opacity: 0.7; } }
+
+.admin-sidebar { padding: 15px; background: #161b24; border-top: 2px solid #2980b9; margin-top: auto; flex-shrink: 0; }
+.admin-sidebar h4 { font-size: 12px; margin-bottom: 10px; color: #ecf0f1; }
+.admin-sidebar input, .admin-sidebar select { width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 4px; border: none; font-size: 13px; background: #2c3440; color: white; outline: none; }
+.btn-salvar { width: 100%; padding: 12px; background: #2980b9; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; margin: 6px 0; font-size: 14px; }
+.btn-zap { background: #25D366; margin-top: 6px; width: 100%; font-size: 14px; padding: 12px; border: none; border-radius: 4px; color: white; font-weight: bold; cursor: pointer; }
+
+main { flex: 1; display: flex; flex-direction: column; height: 100%; overflow: hidden; position: relative; }
+.topo-caixa-moderno { background: #2980b9; color: white; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; flex-shrink: 0; }
+.info-loja h1 { font-size: 22px; font-weight: bold; margin: 0; }
+.info-loja .linha-documento { display: flex; align-items: center; gap: 8px; margin-top: 5px; flex-wrap: wrap; }
+.info-loja input { padding: 3px 6px; border: none; border-radius: 3px; font-size: 12px; width: 210px; color: #222; }
+.info-loja .btn-salvar-cnpj { padding: 3px 8px; border: none; border-radius: 3px; background: #27ae60; color: white; font-size: 11px; font-weight: bold; cursor: pointer; }
+.controles-topo { display: flex; flex-direction: row; gap: 10px; align-items: center; flex-wrap: wrap; }
+.linha-status { display: flex; align-items: center; gap: 8px; }
+.btn-recebe-pedidos { padding: 6px 14px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px; transition: 0.2s; }
+.recebe-sim { background: #27ae60; color: white; }
+.recebe-nao { background: #e74c3c; color: white; }
+.status-conexao { font-size: 12px; font-weight: normal; padding: 5px 12px; border-radius: 12px; background: #f39c12; color: white; text-align: center; min-width: 110px; }
+.btn-conectar { padding: 5px 10px; border: none; border-radius: 6px; background: #2ecc71; color: white; font-weight: bold; cursor: pointer; font-size: 12px; transition: 0.2s; }
+.btn-conectar:disabled { background: #95a5a6; cursor: not-allowed; }
+
+.btn-modo-nota { padding: 6px 14px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px; transition: 0.2s; }
+.nota-sim { background: #27ae60; color: white; }
+.nota-nao { background: #6c757d; color: white; }
+
+.area-cupom { flex: 1; margin: 12px; background: #fff; border: 1px solid #ccc; padding: 15px; overflow-y: auto; border-radius: 5px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+table th { border-bottom: 2px solid #333; text-align: left; padding: 10px; color: #555; }
+table td { padding: 8px 10px; border-bottom: 1px solid #eee; }
+.linha-subtotal { color: #444; font-style: italic; }
+.linha-taxa { color: #2980b9; font-weight: 500; }
+.linha-total { font-weight: bold; font-size: 16px; color: #27ae60; border-top: 2px solid #000; padding-top: 10px; }
+.linha-info { font-size: 12px; color: #666; background: #f8f9fa; }
+.linha-produto { color: #333; }
+
+.painel-venda { background: #1e252f; color: white; padding: 18px; display: flex; justify-content: space-between; align-items: center; border-top: 4px solid #27ae60; flex-wrap: wrap; gap: 15px; flex-shrink: 0; }
+.total-valor { font-size: 30px; color: #2ecc71; font-weight: bold; }
+.btn-acao { border: none; padding: 10px 18px; border-radius: 5px; cursor: pointer; font-weight: bold; color: white; font-size: 14px; margin-left: 8px; }
+.btn-corrigir { background: #e67e22; }
+.btn-limpar { background: #e74c3c; }
+.btn-fechar { background: #27ae60; }
+
+.barra-comando { padding: 15px; background: #fff; border-top: 1px solid #ddd; flex-shrink: 0; position: relative; }
+.input-principal { width: 100%; padding: 12px; font-size: 18px; border: 2px solid #2980b9; border-radius: 6px; outline: none; }
+
+/* ✅ LISTA DE BUSCA CORRIGIDA — NÃO INVADE O MENU */
+#listaSugestoes { 
+  position: absolute; 
+  bottom: 100%; 
+  left: 15px; 
+  right: 15px; 
+  background: white; 
+  border: 2px solid #2980b9; 
+  border-radius: 6px; 
+  display: none; 
+  z-index: 15; 
+  max-height: 280px; 
+  overflow-y: auto; 
+  margin-bottom: 8px;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.15);
+}
+.sugestao-item { 
+  padding: 14px; 
+  border-bottom: 1px solid #eee; 
+  cursor: pointer; 
+  display: flex; 
+  justify-content: space-between; 
+  font-weight: bold; 
+  font-size: 15px; 
+  transition: background 0.15s;
+}
+.sugestao-item:hover { background: #f0f8ff; }
+
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; }
+.modal-conteudo { background: white; margin: 5% auto; padding: 25px; width: 90%; max-width: 500px; border-radius: 8px; max-height: 90vh; overflow-y: auto; }
+.modal-header { font-size: 20px; font-weight: bold; margin-bottom: 20px; color: #2c3e50; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+.modal-campo { margin-bottom: 12px; }
+.modal-campo label { display: block; margin-bottom: 5px; font-weight: 500; color: #333; font-size: 14px; }
+.modal-campo input, .modal-campo select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+.botoes-aprovacao { display: flex; gap: 12px; margin-top: 20px; justify-content: flex-end; flex-wrap: wrap; }
+.btn-aprovar { background: #27ae60; color: white; border: none; padding: 10px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 14px; }
+.btn-rejeitar { background: #e74c3c; color: white; border: none; padding: 10px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 14px; }
+.btn-fechar-modal { background: #95a5a6; color: white; border: none; padding: 10px 18px; border-radius: 4px; cursor: pointer; font-size: 14px; }
+
+@media print {
+nav, .painel-venda, .barra-comando, .status-conexao, .btn-recebe-pedidos, .btn-pedidos-online, .btn-modo-nota { display: none !important; }
+body { background: white !important; transform: none !important; margin: 0 !important; width: 100% !important; overflow: visible !important; padding: 0 !important; }
+.main-container { display: block !important; overflow: visible !important; }
+.area-cupom { border: none !important; margin: 0 !important; padding: 0 !important; overflow: visible !important; max-height: none !important; }
+.topo-caixa-moderno { background: white !important; color: black !important; border-bottom: 2px solid #000; padding: 5px 0; margin-bottom: 10px; }
+table td, table th { color: black !important; }
+}
+</style>
+</head>
+<body><div class="main-container">
+<nav>
+<div class="menu-header">ESTOQUE</div>
+<div class="lista-estoque-menu" id="menuEstoque"></div>        
+        <div class="menu-recolhivel">
+<div class="menu-titulo" onclick="alternarMenu('configLoja')">
+⚙️ Configuração da Loja
+<span id="seta_configLoja">▼</span>
+</div>
+<div class="menu-conteudo" id="conteudo_configLoja">
+<input type="text" id="confNomeLoja" placeholder="Nome da Loja">
+<select id="confTipoId">
+<option value="CNPJ">CNPJ</option>
+<option value="CPF">CPF</option>
+</select>
+<input type="text" id="confDocumento" placeholder="Número do CNPJ/CPF">
+<input type="text" id="confServidor" placeholder="Servidor Principal (ex: http://192.168.15.82:3000)">
+<button class="btn-salvar" onclick="salvarConfiguracaoLoja()">💾 Salvar e Sincronizar</button>
+</div>
+</div>
+<button id="btnPedidosOnline" class="btn-pedidos-online sem-pedido" onclick="abrirPedidos()">🔴 Nenhum Pedido Novo</button>
+
+        <div class="admin-sidebar">
+<h4>CADASTRAR / EDITAR</h4>
+<input type="text" id="addCod" placeholder="Cód. Barras">
+<input type="text" id="addNome" placeholder="Nome do Item">
+<input type="text" id="addPreco" placeholder="Preço R$">
+<input type="text" id="addQtd" placeholder="Qtd p/ Adicionar (ex: 1,000)">
+            <select id="addUnidade">
+<option value="UN">Unidade (un) - Valor Fixo</option>
+<option value="KG">Quilo (kg) - Peso/Gramas</option>
+</select>
+<button class="btn-salvar" onclick="salvarNoEstoque()">ATUALIZAR ESTOQUE</button>
+<button class="btn-zap" onclick="enviarRelatorioZap()">Relatório WhatsApp</button>
+
+        </div>
+</nav>
+    <main>
+<div class="topo-caixa-moderno">
+<div class="info-loja">
+<h1 id="nomeLojaTopo">Mercearia Do Mineiro</h1>
+<div class="linha-documento">
+<span>CNPJ/ID:</span>
+<input type="text" id="inputCnpjLoja" placeholder="Digite o CNPJ/ID da loja" value="41.177.958/0001-30">
+<button class="btn-salvar-cnpj" onclick="salvarCnpjRapido()">💾 Salvar</button>
+</div>
+</div>
+<div class="controles-topo">
+<div class="linha-status">
+<div class="status-conexao" id="statusConexao">Conectando...</div>
+<button id="btnConectar" class="btn-conectar" onclick="conectarServidor()">🔌 Conectar</button>
+</div>
+<button id="botaoRecebePedidos" class="btn-recebe-pedidos" onclick="alternarRecebimento()">✅ RECEBE PEDIDOS</button>
+<button id="botaoModoNota" class="btn-modo-nota" onclick="alternarModoNota()">🔘 SEM NOTA</button>
+</div>
+</div>
+        <div class="area-cupom">
+<table id="tabelaCupom">
+<thead>
+<tr>
+<th>Descrição</th>
+<th style="text-align:center;">Qtd/Un</th>
+<th style="text-align:right;">Valor Unit.</th>
+<th style="text-align:right;">Total</th>
+</tr>
+</thead>
+<tbody id="corpoTabela"></tbody>
+</table>
+</div>
+        <div class="painel-venda">
+<div><span style="font-size:12px; color:#bdc3c7;">TOTAL GERAL:</span><br><span class="total-valor" id="totalGeral">R$ 0,00</span></div>
+<div style="display:flex; gap:10px;">
+<button class="btn-acao btn-corrigir" onclick="corrigirUltimo()">CORRIGIR</button>
+<button class="btn-acao btn-limpar" onclick="limparVenda()">LIMPAR</button>
+<button class="btn-acao btn-fechar" onclick="concluirVenda()">FINALIZAR (F2)</button>
+</div>
+</div>
+        <div class="barra-comando">
+<div id="listaSugestoes"></div>
+<input type="text" id="campoBusca" class="input-principal" placeholder="Busque ou use o leitor..." autofocus>
+</div>
+</main></div>
+
+<!-- ✅ MODAL DE EDIÇÃO DE ESTOQUE -->
+<div id="modalEditarItem" class="modal">
+<div class="modal-conteudo">
+<div class="modal-header">✏️ Editar Item do Estoque</div>
+<div class="modal-campo">
+<label>Código de Barras</label>
+<input type="text" id="editarCodigo" readonly style="background:#f5f5f5;">
+</div>
+<div class="modal-campo">
+<label>Nome do Produto</label>
+<input type="text" id="editarNome" placeholder="Nome do produto">
+</div>
+<div class="modal-campo">
+<label>Preço Unitário R$</label>
+<input type="text" id="editarPreco" placeholder="0,00">
+</div>
+<div class="modal-campo">
+<label>Quantidade em Estoque</label>
+<input type="text" id="editarQuantidade" placeholder="0,000">
+</div>
+<div class="modal-campo">
+<label>Unidade de Medida</label>
+<select id="editarUnidade">
+<option value="UN">Unidade (un)</option>
+<option value="KG">Quilo (kg)</option>
+</select>
+</div>
+<div class="botoes-aprovacao">
+<button class="btn-fechar-modal" onclick="fecharModalEditar()">Cancelar</button>
+<button class="btn-aprovar" onclick="salvarEdicaoItem()">💾 Salvar Alterações</button>
+</div>
+</div>
+</div>
+
+<div id="modalPedido" class="modal">
+<div class="modal-conteudo">
+<div class="modal-header">📦 Novo Pedido Online</div>
+<div id="dadosPedido"></div>
+<div style="margin:15px 0; text-align:center;">
+<button class="btn-ver" onclick="verComprovante()" style="padding:8px 15px; background:#3498db; color:white; border:none; border-radius:4px; cursor:pointer;">Ver Comprovante de Pagamento</button>
+</div>
+<div class="botoes-aprovacao">
+<button class="btn-fechar-modal" onclick="fecharModal()">Fechar</button>
+<button class="btn-rejeitar" onclick="rejeitarPedido()">Rejeitar</button>
+<button class="btn-aprovar" onclick="aprovarPedido()">Aprovar e Liberar</button>
+</div>
+</div>
+</div><script>
+// ======================================
+// 📌 CONFIGURAÇÃO
+// ======================================
+const SERVIDOR        = "http://127.0.0.1:5000";
+const TAXA_ENTREGA     = 10.00;
+let itemEmEdicao = null;
+
+// ======================================
+// ⚙️ VARIÁVEIS GLOBAIS
+// ======================================
+let estoque = [];
+let itensVenda = [];
+let totalVenda = 0;
+let conectado = false;
+let pedidosPendentes = [];
+let pedidoAtual = null;
+let recebePedidos = true;
+let modoComNota = false;
+let idLojaAtual = "41177958000130";
+let servidorPrincipal = "";
+
+// ======================================
+// ✅ FUNÇÕES AUXILIARES
+// ======================================
+function parseValor(texto) {
+if (!texto) return 0;
+const limpo = texto.toString().replace(',', '.');
+const num = parseFloat(limpo);
+return isNaN(num) ? 0 : num;
+}
+
+function formatarMoeda(valor) {
+return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor);
+}
+
+function formatarQuantidade(valor, unidade) {
+const num = Number(valor);
+const unidSegura = (unidade || "UN").toString().trim() || "UN";
+if (unidSegura === 'UN') return num.toFixed(0) + ' UN';
+return num.toFixed(3).replace('.', ',') + ' KG';
+}
+
+function aplicarMascaraDocumento(valor) {
+valor = valor.replace(/\D/g, '');
+if (valor.length <= 11) {
+return valor.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+} else {
+return valor.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5");
+}
+}
+
+function alternarMenu(id) {
+const conteudo = document.getElementById(`conteudo_${id}`);
+const seta = document.getElementById(`seta_${id}`);
+const estaAberto = conteudo.classList.contains("aberto");
+if (estaAberto) { conteudo.classList.remove("aberto"); seta.textContent = "▼"; }
+else { conteudo.classList.add("aberto"); seta.textContent = "▲"; }
+}
+
+// ======================================
+// ✅ FUNÇÕES DE EDIÇÃO DE ESTOQUE
+// ======================================
+function abrirModalEditar(codigoItem) {
+const item = estoque.find(i => i.codigo === codigoItem);
+if (!item) return alert("Item não encontrado!");
+
+itemEmEdicao = codigoItem;
+document.getElementById("editarCodigo").value = item.codigo;
+document.getElementById("editarNome").value = item.nome;
+document.getElementById("editarPreco").value = Number(item.preco).toFixed(2).replace('.', ',');
+document.getElementById("editarQuantidade").value = Number(item.quantidade).toFixed(3).replace('.', ',');
+document.getElementById("editarUnidade").value = item.unidade || "UN";
+document.getElementById("modalEditarItem").style.display = "block";
+}
+
+function fecharModalEditar() {
+document.getElementById("modalEditarItem").style.display = "none";
+itemEmEdicao = null;
+}
+
+async function salvarEdicaoItem() {
+if (!itemEmEdicao) return;
+
+const nome = document.getElementById("editarNome").value.trim();
+const preco = parseValor(document.getElementById("editarPreco").value);
+const quantidade = parseValor(document.getElementById("editarQuantidade").value);
+const unidade = document.getElementById("editarUnidade").value;
+
+if (!nome || preco <= 0 || quantidade < 0) return alert("Preencha todos os campos corretamente!");
+
+const indice = estoque.findIndex(i => i.codigo === itemEmEdicao);
+if (indice >= 0) {
+estoque[indice].nome = nome;
+estoque[indice].preco = Number(preco.toFixed(2));
+estoque[indice].quantidade = Number(quantidade.toFixed(3));
+estoque[indice].unidade = unidade;
+}
+
+if (!conectado) {
+alert("✅ Alterado localmente! Conecte para sincronizar com o servidor.");
+fecharModalEditar();
+atualizarMenuEstoque();
+return;
+}
+
+try {
+const res = await fetch(`${SERVIDOR}/api/atualizar-estoque`, {
+method: "POST", headers: { "Content-Type": "application/json" },
+body: JSON.stringify({ estoque: estoque.map(p => ({ cod: p.codigo, nome: p.nome, preco: p.preco, qtd: p.quantidade, unidade: p.unidade || "UN" })) })
+});
+const ret = await res.json();
+if (ret.sucesso) {
+alert("✅ Item atualizado com sucesso!");
+fecharModalEditar();
+atualizarMenuEstoque();
+} else {
+alert("❌ Erro: " + ret.erro);
+}
+} catch {
+alert("❌ Sem conexão para salvar no servidor!");
+fecharModalEditar();
+atualizarMenuEstoque();
+}
+}
+
+// ======================================
+// 🔌 CONEXÃO E CONFIGURAÇÃO
+// ======================================
+async function conectarServidor() {
+const statusEl = document.getElementById("statusConexao");
+const btnEl = document.getElementById("btnConectar");
+statusEl.textContent = "⏳ Conectando...";
+statusEl.style.background = "#3498db";
+btnEl.disabled = true;
+
+try {
+const res = await fetch(`${SERVIDOR}/status`, { method: "GET", cache: "no-cache", signal: AbortSignal.timeout(5000) });
+if (res.ok) {
+conectado = true;
+statusEl.textContent = "✅ CONECTADO";
+statusEl.style.background = "#27ae60";
+btnEl.textContent = "✅ Conectado";
+btnEl.style.background = "#95a5a6";
+await carregarConfiguracaoLoja();
+await carregarEstoque();
+verificarPedidosNovos();
+enviarStatusParaServidor();
+} else { throw new Error("Sem resposta"); }
+} catch (erro) {
+conectado = false;
+statusEl.textContent = "❌ SEM CONEXÃO";
+statusEl.style.background = "#e74c3c";
+btnEl.textContent = "🔌 Tentar Novamente";
+btnEl.disabled = false;
+console.warn("Erro de conexão:", erro);
+}
+atualizarInterface();
+}
+
+async function carregarConfiguracaoLoja() {
+if (!conectado) return;
+try {
+const res = await fetch(`${SERVIDOR}/api/obter-config-loja`);
+const dados = await res.json();
+if (dados.sucesso) {
+const cfg = dados.config;
+idLojaAtual = cfg.id_loja?.replace(/\D/g, '') || "41177958000130";
+servidorPrincipal = cfg.servidor_principal || "";
+document.getElementById("confNomeLoja").value = cfg.nome_loja || "Mercearia Do Mineiro";
+document.getElementById("confTipoId").value = cfg.tipo_id || "CNPJ";
+document.getElementById("confDocumento").value = cfg.id_loja || "41.177.958/0001-30";
+document.getElementById("confServidor").value = cfg.servidor_principal || SERVIDOR;
+document.getElementById("nomeLojaTopo").textContent = cfg.nome_loja || "Mercearia Do Mineiro";
+document.getElementById("inputCnpjLoja").value = aplicarMascaraDocumento(idLojaAtual);
+}
+} catch (erro) { console.warn("Erro ao carregar configuração:", erro); }
+}
+
+async function salvarCnpjRapido() {
+const valorBruto = document.getElementById("inputCnpjLoja").value.replace(/\D/g, '');
+if (!valorBruto || (valorBruto.length !== 11 && valorBruto.length !== 14)) return alert("⚠️ Digite um CNPJ ou CPF válido!");
+idLojaAtual = valorBruto;
+if (!conectado) return alert("⚠️ Conecte ao servidor primeiro!");
+try {
+const res = await fetch(`${SERVIDOR}/api/salvar-config-loja`, {
+method: "POST", headers: { "Content-Type": "application/json" },
+body: JSON.stringify({
+nome_loja: document.getElementById("confNomeLoja").value || "Mercearia Do Mineiro",
+tipo_id: valorBruto.length === 14 ? "CNPJ" : "CPF",
+id_loja: valorBruto,
+servidor_principal: document.getElementById("confServidor").value || SERVIDOR
+})
+});
+const ret = await res.json();
+if (ret.sucesso) {
+document.getElementById("inputCnpjLoja").value = aplicarMascaraDocumento(valorBruto);
+alert("✅ CNPJ/ID salvo e sincronizado!");
+verificarPedidosNovos();
+enviarStatusParaServidor();
+} else { alert("❌ Erro ao salvar: " + (ret.mensagem || ret.erro)); }
+} catch { alert("❌ Sem conexão para salvar!"); }
+}
+
+async function salvarConfiguracaoLoja() {
+const nome = document.getElementById("confNomeLoja").value.trim() || "Mercearia Do Mineiro";
+const tipo = document.getElementById("confTipoId").value;
+const doc = document.getElementById("confDocumento").value.replace(/\D/g, '');
+const servidor = document.getElementById("confServidor").value.trim() || SERVIDOR;
+if (!nome || !doc || !servidor) return alert("⚠️ Preencha todos os campos!");
+idLojaAtual = doc;
+try {
+const res = await fetch(`${SERVIDOR}/api/salvar-config-loja`, {
+method: "POST", headers: { "Content-Type": "application/json" },
+body: JSON.stringify({ nome_loja: nome, tipo_id: tipo, id_loja: doc, servidor_principal: servidor })
+});
+const ret = await res.json();
+if (ret.sucesso) { alert(ret.mensagem); await carregarConfiguracaoLoja(); atualizarInterface(); verificarPedidosNovos(); }
+else { alert("❌ Erro: " + ret.erro); }
+} catch { alert("❌ Sem conexão com o servidor!"); }
+}
+
+async function carregarEstoque() {
+if (!conectado) return;
+try {
+const res = await fetch(`${SERVIDOR}/api/obter-estoque`);
+const dados = await res.json();
+if (dados.sucesso) {
+estoque = dados.produtos.map(p => ({ codigo: p.cod, nome: p.nome, preco: p.preco, quantidade: p.qtd, unidade: p.unidade || "UN" }));
+atualizarMenuEstoque();
+}
+} catch (erro) { console.warn("Erro ao carregar estoque:", erro); }
+}
+
+async function enviarStatusParaServidor() {
+if (!conectado || !idLojaAtual) return;
+try {
+await fetch(`${SERVIDOR}/api/alterar-recebe-pedidos`, {
+method: "POST", headers: { "Content-Type": "application/json" },
+body: JSON.stringify({ id_loja: idLojaAtual, recebePedidos: recebePedidos })
+});
+} catch (erro) { console.warn("Sincronização:", erro); }
+}
+
+// ======================================
+// 🚀 INICIALIZAÇÃO
+// ======================================
+window.addEventListener("load", () => {
+conectarServidor();
+setInterval(conectarServidor, 30000);
+setInterval(verificarPedidosNovos, 5000);
+setInterval(enviarStatusParaServidor, 5000);
+document.getElementById("inputCnpjLoja").addEventListener("input", (e) => { e.target.value = aplicarMascaraDocumento(e.target.value); });
+});
+
+// ======================================
+// 🖥️ INTERFACE
+// ======================================
+function atualizarInterface() {
+atualizarMenuEstoque();
+atualizarTabela();
+atualizarBotaoRecebimento();
+atualizarBotaoModoNota();
+atualizarBotaoPedidos();
+}
+
+function atualizarMenuEstoque() {
+const menu = document.getElementById("menuEstoque");
+menu.innerHTML = "";
+estoque.forEach(item => {
+const qtdFormatada = Number(item.quantidade).toFixed(3).replace('.', ',');
+const unidSegura = (item.unidade || "UN").toString().trim() || "UN";
+const div = document.createElement("div");
+div.className = "item-estoque";
+div.innerHTML = `
+  <span class="item-estoque-nome" onclick="adicionarItemNaVenda(estoque.find(i => i.codigo === '${item.codigo}'))">${item.nome}</span>
+  <span class="qtd-badge">${qtdFormatada} ${unidSegura}</span>
+  <button class="btn-editar-item" onclick="abrirModalEditar('${item.codigo}')">✏️</button>
+`;
+menu.appendChild(div);
+});
+}
+
+function atualizarTabela() {
+const corpo = document.getElementById("corpoTabela");
+corpo.innerHTML = "";
+let subtotal = 0;
+itensVenda.forEach(i => {
+const qtdFormatada = Number(i.quantidade).toFixed(3).replace('.', ',');
+const valorUnit = Number(i.preco).toFixed(2).replace('.', ',');
+const valorTotal = Number((i.preco * i.quantidade).toFixed(2));
+const valorTotalFormatado = valorTotal.toFixed(2).replace('.', ',');
+const unidSegura = (i.unidade || "UN").toString().trim() || "UN";
+subtotal += valorTotal;
+const linha = document.createElement("tr");
+linha.innerHTML = `<td>${i.nome}</td><td style="text-align:center;">${qtdFormatada} ${unidSegura}</td><td style="text-align:right;">R$ ${valorUnit}</td><td style="text-align:right;">R$ ${valorTotalFormatado}</td>`;
+corpo.appendChild(linha);
+});
+if (itensVenda.length > 0) {
+const linhaSub = document.createElement("tr");
+linhaSub.className = "linha-subtotal";
+linhaSub.innerHTML = `<td colspan="3">SUBTOTAL PRODUTOS</td><td style="text-align:right;">${formatarMoeda(subtotal)}</td>`;
+corpo.appendChild(linhaSub);
+const linhaTaxa = document.createElement("tr");
+linhaTaxa.className = "linha-taxa";
+linhaTaxa.innerHTML = `<td colspan="3">TAXA DE ENTREGA</td><td style="text-align:right;">${formatarMoeda(TAXA_ENTREGA)}</td>`;
+corpo.appendChild(linhaTaxa);
+const linhaTotal = document.createElement("tr");
+linhaTotal.className = "linha-total";
+const totalFinal = subtotal + TAXA_ENTREGA;
+linhaTotal.innerHTML = `<td colspan="3">TOTAL GERAL</td><td style="text-align:right;">${formatarMoeda(totalFinal)}</td>`;
+corpo.appendChild(linhaTotal);
+totalVenda = totalFinal;
+const linhaModo = document.createElement("tr");
+linhaModo.className = "linha-info";
+linhaModo.innerHTML = `<td colspan="4" style="text-align:right; font-style:italic;">${modoComNota ? "🧾 Venda com Nota Fiscal" : "🛒 Venda sem Nota Fiscal"}</td>`;
+corpo.appendChild(linhaModo);
+} else { totalVenda = 0; }
+document.getElementById("totalGeral").textContent = formatarMoeda(totalVenda);
+}
+
+function atualizarBotaoRecebimento() {
+const botao = document.getElementById("botaoRecebePedidos");
+if (!conectado) { botao.textContent = "❌ NÃO RECEBE"; botao.className = "btn-recebe-pedidos recebe-nao"; botao.disabled = true; return; }
+botao.disabled = false;
+botao.textContent = recebePedidos ? "✅ RECEBE PEDIDOS" : "❌ NÃO RECEBE";
+botao.className = recebePedidos ? "btn-recebe-pedidos recebe-sim" : "btn-recebe-pedidos recebe-nao";
+}
+
+function atualizarBotaoModoNota() {
+const botao = document.getElementById("botaoModoNota");
+botao.textContent = modoComNota ? "🧾 COM NOTA" : "🔘 SEM NOTA";
+botao.className = modoComNota ? "btn-modo-nota nota-sim" : "btn-modo-nota nota-nao";
+}
+
+async function alternarRecebimento() {
+if (!conectado) return alert("⚠️ Conecte ao servidor primeiro!");
+recebePedidos = !recebePedidos;
+await fetch(`${SERVIDOR}/api/alterar-recebe-pedidos`, {
+method: "POST", headers: { "Content-Type": "application/json" },
+body: JSON.stringify({ id_loja: idLojaAtual, recebePedidos: recebePedidos })
+});
+atualizarBotaoRecebimento();
+enviarStatusParaServidor();
+if (recebePedidos) verificarPedidosNovos();
+}
+
+function alternarModoNota() {
+modoComNota = !modoComNota;
+atualizarBotaoModoNota();
+atualizarTabela();
+alert(modoComNota ? "✅ Modo com Nota Fiscal ativado!" : "✅ Modo sem Nota Fiscal ativado!");
+}
+
+// ======================================
+// 📦 ESTOQUE
+// ======================================
+async function salvarNoEstoque() {
+const cod = document.getElementById("addCod").value.trim();
+const nome = document.getElementById("addNome").value.trim();
+const preco = parseValor(document.getElementById("addPreco").value);
+const qtd = parseValor(document.getElementById("addQtd").value);
+const unidade = document.getElementById("addUnidade").value;
+if (!cod || !nome || preco <= 0 || qtd <= 0) return alert("Preencha todos os campos corretamente!");
+const existe = estoque.find(i => i.codigo === cod);
+if (existe) { existe.quantidade = Number((existe.quantidade + qtd).toFixed(3)); existe.preco = Number(preco.toFixed(2)); }
+else { estoque.push({ codigo: cod, nome, preco: Number(preco.toFixed(2)), quantidade: Number(qtd.toFixed(3)), unidade }); }
+if (!conectado) return alert("❌ Sem conexão para salvar!");
+try {
+const res = await fetch(`${SERVIDOR}/api/atualizar-estoque`, {
+method: "POST", headers: { "Content-Type": "application/json" },
+body: JSON.stringify({ estoque: estoque.map(p => ({ cod: p.codigo, nome: p.nome, preco: p.preco, qtd: p.quantidade, unidade: p.unidade || "UN" })) })
+});
+const ret = await res.json();
+if (ret.sucesso) { alert("✅ Estoque salvo com sucesso!"); atualizarMenuEstoque(); ["addCod","addNome","addPreco","addQtd"].forEach(id => document.getElementById(id).value = ""); }
+else { alert("❌ Erro ao salvar: " + ret.erro); }
+} catch (erro) { alert("❌ Sem conexão com o servidor!"); }
+}
+
+// ======================================
+// 🛒 VENDAS
+// ======================================
+function adicionarItemNaVenda(item, qtd = null) {
+let quantidade;
+if (qtd !== null) { quantidade = qtd; }
+else {
+const unidSegura = (item.unidade || "UN").toString().trim() || "UN";
+if (unidSegura === "KG") { const entrada = prompt("Peso em kg (ex: 0,2 ou 1,5):", "1,000"); quantidade = parseValor(entrada) || 1; }
+else { const entrada = prompt("Quantidade:", "1"); quantidade = parseValor(entrada) || 1; }
+}
+quantidade = Number(quantidade.toFixed(3));
+if (quantidade > item.quantidade) return alert(`❌ Estoque insuficiente! Disponível: ${item.quantidade}`);
+itensVenda.push({ ...item, quantidade, unidade: item.unidade || "UN" });
+atualizarTabela();
+document.getElementById("campoBusca").value = "";
+document.getElementById("listaSugestoes").style.display = "none";
+}
+
+function corrigirUltimo() { if (itensVenda.length) { itensVenda.pop(); atualizarTabela(); } }
+function limparVenda() { if (itensVenda.length && confirm("Limpar todos os itens?")) { itensVenda = []; totalVenda = 0; atualizarTabela(); } }
+
+async function concluirVenda() {
+if (!itensVenda.length) return alert("Adicione pelo menos um produto!");
+if (!conectado) return alert("❌ Sem conexão para registrar!");
+
+const itensFormatados = itensVenda.map(i => ({
+cod: i.codigo,
+nome: i.nome,
+preco: Number(i.preco),
+qtd: Number(i.quantidade),
+unidade: (i.unidade || "UN").toString().trim() || "UN"
+}));
+
+const dadosVenda = {
+itens: itensFormatados,
+total: Number(totalVenda),
+subtotal: Number(totalVenda - TAXA_ENTREGA),
+taxa_entrega: Number(TAXA_ENTREGA),
+com_nota: Boolean(modoComNota),
+tipo: "LOCAL",
+pagamento: "DINHEIRO",
+forma_pagamento: "DINHEIRO"
+};
+
+try {
+const resVenda = await fetch(`${SERVIDOR}/registrar_venda`, {
+method: "POST",
+headers: { "Content-Type": "application/json" },
+body: JSON.stringify(dadosVenda)
+});
+
+const retVenda = await resVenda.json();
+if (retVenda.status !== "sucesso") throw new Error(retVenda.mensagem || "Erro desconhecido");
+
+itensVenda.forEach(v => {
+const p = estoque.find(e => e.codigo === v.codigo);
+if (p) p.quantidade = Number(Math.max(0, (p.quantidade - v.quantidade)).toFixed(3));
+});
+
+alert(`✅ ${retVenda.mensagem}`);
+window.print();
+limparVenda();
+atualizarMenuEstoque();
+
+} catch (erro) {
+console.error("❌ Erro completo:", erro);
+alert(`❌ Erro ao registrar venda!\nDetalhe: ${erro.message}`);
+}
+}
+
+// ======================================
+// 📦 PEDIDOS — COMPORTAMENTO ORIGINAL RESTAURADO ✅
+// ======================================
+async function verificarPedidosNovos() {
+if (!recebePedidos || !conectado || !idLojaAtual) return;
+try {
+const res = await fetch(`${SERVIDOR}/api/pedidos-pendentes/${idLojaAtual}`);
+const dados = await res.json();
+pedidosPendentes = dados.pedidos || [];
+atualizarBotaoPedidos();
+} catch (erro) { 
+console.warn("Erro ao buscar pedidos:", erro); 
+pedidosPendentes = []; 
+atualizarBotaoPedidos();
+}
+}
+
+function atualizarBotaoPedidos() {
+const btn = document.getElementById("btnPedidosOnline");
+if (!conectado) { 
+btn.textContent = "🔴 Sem Conexão"; 
+btn.className = "btn-pedidos-online sem-pedido"; 
+return; 
+}
+if (pedidosPendentes.length > 0) { 
+btn.textContent = `🟢 ${pedidosPendentes.length} PEDIDO(S) NOVO(S)`; 
+btn.className = "btn-pedidos-online tem-pedido"; 
+} else { 
+btn.textContent = "🔴 Nenhum Pedido Novo"; 
+btn.className = "btn-pedidos-online sem-pedido"; 
+}
+}
+
+function abrirPedidos() {
+if (!conectado) return alert("⚠️ Sem conexão com o servidor!");
+if (pedidosPendentes.length === 0) return alert("Nenhum pedido pendente.");
+pedidoAtual = pedidosPendentes[0];
+if (!pedidoAtual) return alert("⚠️ Pedido inválido!");
+const subtotal = (pedidoAtual.itens || []).reduce((s, i) => s + ((i.preco || 0) * (i.qtd || 0)), 0);
+const totalFinal = subtotal + TAXA_ENTREGA;
+document.getElementById("dadosPedido").innerHTML = `
+<p><strong>Pedido nº:</strong> ${pedidoAtual.id || "---"}</p>
+<p><strong>Cliente:</strong> ${pedidoAtual.nome_cliente || "---"}</p>
+<p><strong>Telefone:</strong> ${pedidoAtual.contato || "---"}</p>
+<p><strong>Endereço:</strong> ${pedidoAtual.endereco_entrega || "---"}</p>
+<hr style="margin:10px 0;">
+<p><strong>Itens:</strong></p>
+${(pedidoAtual.itens || []).map(i => `<p>• ${i.nome || "Item sem nome"} | ${formatarQuantidade(i.qtd || 1, i.unidade || "UN")} | ${formatarMoeda((i.preco || 0) * (i.qtd || 1))}</p>`).join('')}
+<hr style="margin:10px 0;">
+<p><strong>Subtotal:</strong> ${formatarMoeda(subtotal)}</p>
+<p class="linha-taxa"><strong>Taxa de Entrega:</strong> ${formatarMoeda(TAXA_ENTREGA)}</p>
+<p class="linha-total"><strong>Total Final:</strong> ${formatarMoeda(totalFinal)}</p>
+`;
+document.getElementById("modalPedido").style.display = "block";
+}
+
+function verComprovante() {
+if (!pedidoAtual || !pedidoAtual.comprovante_url) { alert("Nenhum comprovante enviado."); return; }
+window.open(`${SERVIDOR}${pedidoAtual.comprovante_url}`, "_blank", "width=700,height=600");
+}
+
+function fecharModal() { document.getElementById("modalPedido").style.display = "none"; pedidoAtual = null; }
+
+async function rejeitarPedido() {
+if (!confirm("Rejeitar este pedido?")) return;
+try {
+await fetch(`${SERVIDOR}/api/atualizar-status-pedido`, {
+method: "POST", headers: { "Content-Type": "application/json" },
+body: JSON.stringify({ id: pedidoAtual.id, status: "rejeitado" })
+});
+pedidosPendentes.shift();
+atualizarBotaoPedidos();
+fecharModal();
+} catch { alert("⚠️ Erro ao atualizar pedido."); }
+}
+
+async function aprovarPedido() {
+if (!pedidoAtual || !pedidoAtual.itens) {
+alert("⚠️ Pedido não carregado corretamente! Feche e abra novamente.");
+return;
+}
+if (!confirm("✅ Aprovar pedido e enviar itens para o caixa?")) return;
+
+}
+
+async function aprovarPedido() {
+if (!pedidoAtual || !pedidoAtual.itens) {
+alert("⚠️ Pedido não carregado corretamente! Feche e abra novamente.");
+return;
+}
+if (!confirm("✅ Aprovar pedido e enviar itens para o caixa?")) return;
+
+try {
+const res = await fetch(`${SERVIDOR}/api/aprovar-pedido`, {
+method: "POST", headers: { "Content-Type": "application/json" },
+body: JSON.stringify({ id_pedido: pedidoAtual.id })
+});
+const ret = await res.json();
+if (!ret.sucesso) throw new Error(ret.mensagem || "Erro no servidor");
+
+// ✅ LIMPA O CAIXA ANTES E CARREGA OS ITENS DO PEDIDO (FUNCIONAMENTO ORIGINAL)
+itensVenda = [];
+pedidoAtual.itens.forEach(item => {
+const produto = estoque.find(p => p.codigo === item.cod) || {
+codigo: item.cod,
+nome: item.nome,
+preco: item.preco,
+unidade: item.unidade || "UN"
+};
+itensVenda.push({
+...produto,
+quantidade: Number(item.qtd.toFixed(3))
+});
+});
+
+// ✅ ATUALIZA TUDO NA TELA
+pedidosPendentes.shift();
+atualizarBotaoPedidos();
+fecharModal();
+atualizarTabela();
+
+alert(`✅ Pedido aprovado!\n🛒 ${itensVenda.length} itens carregados no caixa!`);
+
+} catch (erro) {
+console.error("Erro ao aprovar pedido:", erro);
+alert("❌ Erro: " + erro.message);
+}
+}
+
+// ======================================
+// 🔍 BUSCA E OUTRAS FUNÇÕES
+// ======================================
+document.getElementById("campoBusca").addEventListener("input", () => {
+const termo = document.getElementById("campoBusca").value.trim().toLowerCase();
+const lista = document.getElementById("listaSugestoes");
+if (!termo) { lista.style.display = "none"; return; }
+const resultados = estoque.filter(i => 
+i.codigo.toLowerCase().includes(termo) || 
+i.nome.toLowerCase().includes(termo)
+);
+lista.innerHTML = "";
+if (resultados.length === 0) { lista.style.display = "none"; return; }
+resultados.forEach(i => {
+const precoFormatado = Number(i.preco).toFixed(2).replace('.', ',');
+const div = document.createElement("div");
+div.className = "sugestao-item";
+div.innerHTML = `<span>${i.nome}</span><span>R$ ${precoFormatado}</span>`;
+div.onclick = () => adicionarItemNaVenda(i);
+lista.appendChild(div);
+});
+lista.style.display = "block";
+});
+
+// Fecha sugestões ao clicar fora
+document.addEventListener("click", (e) => {
+const busca = document.getElementById("campoBusca");
+const lista = document.getElementById("listaSugestoes");
+if (!busca.contains(e.target) && !lista.contains(e.target)) {
+lista.style.display = "none";
+}
+});
+
+// Atalhos de teclado
+document.addEventListener("keydown", e => {
+if (e.key === "F2") { e.preventDefault(); concluirVenda(); }
+if (e.key === "Escape") { 
+fecharModal(); 
+fecharModalEditar();
+}
+});
+
+// ======================================
+// 📤 RELATÓRIO WHATSAPP
+// ======================================
+function enviarRelatorioZap() {
+if (!conectado) return alert("❌ Sem conexão com o servidor!");
+
+let texto = "📋 RELATÓRIO DE ESTOQUE\n";
+texto += `Loja: ${document.getElementById("confNomeLoja").value || "Mercearia Do Mineiro"}\n`;
+texto += `Data: ${new Date().toLocaleString('pt-BR')}\n\n`;
+
+estoque.forEach(item => {
+const qtd = Number(item.quantidade).toFixed(3).replace('.', ',');
+const preco = Number(item.preco).toFixed(2).replace('.', ',');
+texto += `• ${item.nome}\n`;
+texto += `  Código: ${item.codigo}\n`;
+texto += `  Preço: R$ ${preco}\n`;
+texto += `  Estoque: ${qtd} ${item.unidade || "UN"}\n\n`;
+});
+
+const totalItens = estoque.length;
+const valorTotal = estoque.reduce((s, i) => s + (i.preco * i.quantidade), 0);
+texto += `Total de itens: ${totalItens}\n`;
+texto += `Valor total em estoque: R$ ${valorTotal.toFixed(2).replace('.', ',')}`;
+
+const url = `https://wa.me/?text=${encodeURIComponent(texto)}`;
+window.open(url, "_blank");
+}
+</script></body>
+</html>

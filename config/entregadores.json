@@ -1,0 +1,25 @@
+[
+  {
+    "id": "1783429907571",
+    "nome": "Francisco Erivan Cavalcante",
+    "cpf": "26796345860",
+    "telefone": "19994790735",
+    "endereco": "Fulia De Reis 350",
+    "veiculo": {
+      "modelo": "HONDA   CG 160 VERMELHA",
+      "ano": "2025",
+      "placa": "CLK7C22"
+    },
+    "cnh": {
+      "numero": "123467876543",
+      "categoria": "A",
+      "validade": "2029-07-16"
+    },
+    "login": "ERIVAN",
+    "senha": "123456",
+    "caminho_foto": "C:\\Users\\ECELL ASSIST TÉCNICA\\Desktop\\A.C.I\\servidor\\uploads_cnh\\1783429907565-526801361.png",
+    "status": "aprovado",
+    "data_cadastro": "2026-07-07T13:11:47.571Z",
+    "data_aprovacao": "2026-07-07T13:38:45.714Z"
+  }
+]

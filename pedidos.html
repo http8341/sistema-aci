@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A.C.I - Sistema de Pedidos e Entregas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        const SERVIDOR = window.location.origin;
+        const API = `${SERVIDOR}/api`;
+
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        fundo: '#0F0F1A',
+                        menu: '#121220',
+                        card: '#1A1A2E',
+                        verde: '#10B981',
+                        azul: '#2563eb',
+                        laranja: '#f97316',
+                        branco: '#FFFFFF',
+                        cinza: '#B0B0C0',
+                        erro: '#EF4444'
+                    },
+                    fontFamily: { sans: ['Arial', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        .logo-container {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: #f97316; padding: 12px 15px; border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; text-align: center; margin-bottom: 1.5rem;
+        }
+        .aci-text {
+            font-weight: 900; font-size: clamp(42px, 12vw, 65px); color: #2563eb;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2); letter-spacing: -4px; line-height: 1; margin: 0;
+        }
+        .sub-text {
+            color: #16a34a; font-weight: bold; font-size: 14px; margin-top: 6px;
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+        .tela { display: none !important; }
+        .tela.ativa { display: block !important; }
+        .subtela { display: none !important; }
+        .subtela.ativa { display: block !important; }
+        body {
+            background-color: #f3f4f6; margin: 0; padding: 2rem 1rem;
+            display: flex; justify-content: center; align-items: flex-start; min-height: 100vh;
+        }
+        .container-geral {
+            width: 100%; max-width: 420px; background-color: #ffffff; border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); overflow: hidden; padding: 2rem;
+        }
+        header { padding: 0.75rem 1rem !important; }
+        .btn-ver-lojas {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; background: linear-gradient(135deg, #f97316, #ea580c);
+            color: white; border: none; padding: 14px 20px; border-radius: 10px;
+            font-size: 16px; font-weight: 600; cursor: pointer;
+            transition: all 0.3s ease; box-shadow: 0 2px 6px rgba(249, 115, 22, 0.25);
+            text-decoration: none;
+        }
+        .btn-ver-lojas:hover {
+            background: linear-gradient(135deg, #ea580c, #c2410c);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(249, 115, 22, 0.35);
+            color: white;
+        }
+        .detalhe-grupo { margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #f0f0f0; }
+        .detalhe-grupo:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .rotulo { font-size: 12px; color: #666; font-weight: 500; margin-bottom: 2px; display: block; }
+        .valor { font-size: 14px; color: #222; font-weight: 400; }
+        .valor-destaque { font-size: 15px; font-weight: bold; color: #d97706; margin: 4px 0; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 999; padding: 1rem; }
+        .modal-conteudo { background: white; padding: 25px; border-radius: 12px; max-width: 380px; width: 100%; }
+        .modal-conteudo h3 { margin-bottom: 15px; }
+        input[type="file"], textarea { width: 100%; margin: 10px 0; padding: 8px; border: 1px solid #ddd; border-radius: 6px; }
+        .botoes-modal { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
+        .btn-cancelar { background: #ef4444; color: white; border: none; padding: 10px; border-radius: 6px; flex: 1; min-width: 100px; cursor: pointer; }
+        .btn-finalizar-foto { background: #9333ea; color: white; border: none; padding: 10px; border-radius: 6px; flex: 1; min-width: 100px; cursor: pointer; }
+        .btn-cancelar:hover { background: #dc2626; }
+        .btn-finalizar-foto:hover { background: #7e22ce; }
+        button:disabled { opacity: 0.6; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+    <div class="container-geral">
+        <!-- TELA INICIAL -->
+        <div id="telaInicial" class="tela ativa flex flex-col items-center justify-center p-0">
+            <div class="w-full text-center">
+                <div class="logo-container">
+                    <div class="aci-text">A.C.I </div>
+                    <div class="sub-text">Aplicação Comercial Integrada</div>
+                </div>
+                <p class="text-gray-500 mb-8">Compre Aqui e Receba em Instante</p>
+                <div class="space-y-4">
+                    <button onclick="mostrarTela('telaCompras')" class="flex items-center justify-center gap-3 w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-4 rounded-xl transition">
+                        <i class="fa fa-shopping-cart text-xl"></i> Ver Lojas Disponíveis
+                    </button>
+                    <button onclick="mostrarTela('telaAcessoEntregador')" class="flex items-center justify-center gap-3 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 rounded-xl transition">
+                        <i class="fa fa-truck text-xl"></i> Área do Entregador
+                    </button>
+                </div>
+                <footer class="mt-10 text-xs text-gray-400">© 2026 A.C.I - Sistema Integrado</footer>
+            </div>
+        </div>
+
+        <!-- TELA DE COMPRAS -->
+        <div id="telaCompras" class="tela">
+            <header class="bg-orange-500 text-white shadow-md -mx-2 -mt-2 mb-4 rounded-t-lg">
+                <div class="flex items-center justify-between">
+                    <button onclick="mostrarTela('telaInicial')" class="text-white mr-3"><i class="fa fa-arrow-left"></i> Voltar</button>
+                    <h1 class="text-xl font-bold">Nossas Lojas</h1>
+                </div>
+            </header>
+            <main class="p-0">
+                <div class="bg-white rounded-xl shadow p-6 mb-6 text-center">
+                    <h2 class="text-lg font-semibold mb-4">Escolha onde comprar</h2>
+                    <p class="text-gray-600 mb-6">Clique abaixo para acessar a lista completa de lojas, ver produtos e finalizar seu pedido</p>
+                    <a href="/aci/rede_de_lojas.html" class="btn-ver-lojas">
+                        <i class="fa fa-store text-xl"></i> Abrir Lista de Lojas
+                    </a>
+                    <p class="text-xs text-gray-500 mt-4">Todo o processo de compra e pagamento é feito na página das lojas</p>
+                </div>
+            </main>
+        </div>
+
+        <!-- ÁREA DO ENTREGADOR - ACESSO -->
+        <div id="telaAcessoEntregador" class="tela">
+            <header class="bg-orange-500 text-white shadow-md -mx-2 -mt-2 mb-4 rounded-t-lg">
+                <div class="flex items-center">
+                    <button onclick="mostrarTela('telaInicial')" class="text-white mr-3"><i class="fa fa-arrow-left"></i> Voltar</button>
+                    <h1 class="text-xl font-bold">Área do Entregador</h1>
+                </div>
+            </header>
+            <main class="p-0">
+                <div class="bg-white rounded-xl shadow p-6">
+                    <div class="flex gap-4 mb-6">
+                        <button onclick="mostrarSubtela('login')" id="abaLogin" class="flex-1 py-2 border-b-2 border-orange-500 font-medium">Acessar</button>
+                        <button onclick="mostrarSubtela('cadastro')" id="abaCadastro" class="flex-1 py-2 text-gray-500">Quero me Cadastrar</button>
+                    </div>
+                    <div id="formLogin" class="subtela ativa">
+                        <h3 class="text-lg font-semibold mb-4">Entrar na Conta</h3>
+                        <div class="space-y-4">
+                            <input type="text" id="loginEntregador" placeholder="Digite seu Login" class="w-full border rounded p-3">
+                            <input type="password" id="senhaEntregador" placeholder="Digite sua Senha" class="w-full border rounded p-3">
+                            <button onclick="fazerLoginEntregador(this)" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-lg">Entrar</button>
+                            <p id="avisoLogin" class="text-center text-red-500 text-sm mt-2 hidden">Aguardando aprovação ou dados incorretos</p>
+                        </div>
+                    </div>
+                    <div id="formCadastro" class="subtela">
+                        <h3 class="text-lg font-semibold mb-4">Cadastro de Entregador</h3>
+                        <p class="text-sm text-gray-500 mb-4">Preencha todos os dados e documentos. O cadastro será analisado pela administração.</p>
+                        <div class="space-y-3">
+                            <input type="text" id="cadNome" placeholder="Nome completo" class="w-full border rounded p-3">
+                            <input type="text" id="cadCpf" placeholder="CPF (apenas números)" class="w-full border rounded p-3" maxlength="11" oninput="this.value = this.value.replace(/\D/g, '')">
+                            <input type="tel" id="cadTelefone" placeholder="Telefone / WhatsApp" class="w-full border rounded p-3">
+                            <input type="text" id="cadEndereco" placeholder="Endereço completo" class="w-full border rounded p-3">
+                            <h4 class="font-medium text-gray-700 mt-3">Dados do Veículo</h4>
+                            <input type="text" id="cadModeloVeiculo" placeholder="Marca e modelo (ex: Honda CG 160)" class="w-full border rounded p-3">
+                            <input type="text" id="cadAnoVeiculo" placeholder="Ano de fabricação" class="w-full border rounded p-3" maxlength="4">
+                            <input type="text" id="cadPlacaVeiculo" placeholder="Placa do veículo" class="w-full border rounded p-3">
+                            <h4 class="font-medium text-gray-700 mt-3">Documentos</h4>
+                            <input type="text" id="cadCnhNumero" placeholder="Número da CNH" class="w-full border rounded p-3">
+                            <input type="text" id="cadCnhCategoria" placeholder="Categoria da CNH (A, B, etc)" class="w-full border rounded p-3" maxlength="1">
+                            <input type="date" id="cadCnhValidade" class="w-full border rounded p-3">
+                            <input type="file" id="cadFotoCnh" accept="image/*" class="w-full border rounded p-2">
+                            <h4 class="font-medium text-gray-700 mt-3">Dados de Acesso</h4>
+                            <input type="text" id="cadLogin" placeholder="Criar seu Login" class="w-full border rounded p-3">
+                            <input type="password" id="cadSenha" placeholder="Criar Senha de Acesso" class="w-full border rounded p-3">
+                            <input type="password" id="cadConfirmaSenha" placeholder="Confirmar Senha" class="w-full border rounded p-3">
+                            <button onclick="enviarCadastro(this)" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg mt-4">Enviar para Análise</button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- REGRAS DO SISTEMA -->
+        <div id="telaNormas" class="tela">
+            <header class="bg-orange-500 text-white shadow-md -mx-2 -mt-2 mb-4 rounded-t-lg">
+                <div class="flex items-center">
+                    <button onclick="mostrarTela('telaAcessoEntregador')" class="text-white mr-3"><i class="fa fa-arrow-left"></i> Voltar</button>
+                    <h1 class="text-xl font-bold">Regras do Sistema</h1>
+                </div>
+            </header>
+            <div class="bg-white rounded-xl shadow p-6 mb-6">
+                <div class="bg-orange-50 border border-orange-200 rounded p-4 mb-4">
+                    <h3 class="font-semibold text-lg mb-3">📜 Normas e Obrigações</h3>
+                    <ol class="list-decimal list-inside space-y-2 text-sm text-gray-700">
+                        <li>Manter dados e documentos sempre atualizados.</li>
+                        <li>Manter o veículo em bom estado e limpeza.</li>
+                        <li>Ficar ONLINE apenas quando estiver realmente disponível.</li>
+                        <li>Respeitar prazos e leis de trânsito.</li>
+                        <li>Não abrir ou manusear os produtos do pedido.</li>
+                        <li>Confirmar entrega apenas com a pessoa correta.</li>
+                        <li>Comunicar qualquer problema imediatamente.</li>
+                    </ol>
+                </div>
+                <div class="flex items-center gap-2 mb-4">
+                    <input type="checkbox" id="concordoNormas">
+                    <label for="concordoNormas" class="text-sm">Li e concordo com todas as regras</label>
+                </div>
+                <button onclick="avancarParaPainel()" id="btnAvancarNormas" class="w-full bg-blue-600 text-white py-3 rounded-lg hidden">Avançar</button>
+            </div>
+        </div>
+
+        <!-- PAINEL DO ENTREGADOR - COM FINALIZAÇÃO -->
+                <!-- PAINEL DO ENTREGADOR - COM FINALIZAÇÃO -->
+        <div id="telaPainelEntregador" class="tela">
+            <header class="bg-orange-500 text-white shadow-md -mx-2 -mt-2 mb-4 rounded-t-lg">
+                <div class="flex items-center justify-between">
+                    <button onclick="sairPainel()" class="text-white"><i class="fa fa-sign-out-alt"></i> Sair</button>
+                    <h1 class="text-xl font-bold">Painel do Entregador</h1>
+                    <div class="flex items-center gap-2">
+                        <span id="statusOnline" class="text-sm font-medium">OFFLINE</span>
+                        <button onclick="alternarStatus()" id="btnStatus" class="bg-white text-orange-500 px-3 py-1 rounded-full text-sm font-bold">
+                            Ativar
+                        </button>
+                    </div>
+                </div>
+            </header>
+            <main class="p-0">
+                <!-- Resumo -->
+                <div class="grid grid-cols-3 gap-3 mb-6">
+                    <div class="bg-green-50 rounded-lg p-3 text-center">
+                        <p class="text-xs text-gray-500">Pedidos</p>
+                        <p id="qtdPedidos" class="text-lg font-bold text-green-600">0</p>
+                    </div>
+                    <div class="bg-blue-50 rounded-lg p-3 text-center">
+                        <p class="text-xs text-gray-500">Entregues</p>
+                        <p id="qtdEntregues" class="text-lg font-bold text-blue-600">0</p>
+                    </div>
+                    <div class="bg-orange-50 rounded-lg p-3 text-center">
+                        <p class="text-xs text-gray-500">Ganhos</p>
+                        <p id="totalGanhos" class="text-lg font-bold text-orange-600">R$ 0,00</p>
+                    </div>
+                </div>
+
+                <!-- Pedidos Disponíveis -->
+                <div id="pedidosDisponiveis" class="mb-6">
+                    <h2 class="text-lg font-semibold mb-3">Pedidos Disponíveis</h2>
+                    <div id="listaPedidos" class="space-y-3">
+                        <!-- Os pedidos serão inseridos aqui via JS -->
+                        <p class="text-gray-500 text-sm text-center py-4">Nenhum pedido disponível no momento</p>
+                    </div>
+                </div>
+
+                <!-- Pedido Atual -->
+                <div id="pedidoAtual" class="hidden">
+                    <h2 class="text-lg font-semibold mb-3">Pedido em Andamento</h2>
+                    <div id="dadosPedidoAtual" class="bg-white rounded-xl shadow p-4 space-y-3">
+                        <!-- Dados do pedido atual -->
+                    </div>
+                    <div class="mt-4 space-y-3">
+                        <button onclick="abrirModalConfirmacao()" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg">
+                            <i class="fa fa-check-circle mr-2"></i> Confirmar Entrega
+                        </button>
+                        <button onclick="cancelarPedido()" class="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-lg">
+                            <i class="fa fa-times-circle mr-2"></i> Cancelar Entrega
+                        </button>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- MODAL DE CONFIRMAÇÃO DE ENTREGA -->
+        <div id="modalConfirmarEntrega" class="modal">
+            <div class="modal-conteudo">
+                <h3 class="text-xl font-bold text-center mb-4">Confirmar Entrega</h3>
+                <p class="text-sm text-gray-600 mb-4 text-center">Tire uma foto do comprovativo ou peça a assinatura do cliente</p>
+                
+                <div class="space-y-3">
+                    <label class="block">
+                        <span class="text-sm font-medium text-gray-700">Foto do comprovativo</span>
+                        <input type="file" id="fotoComprovativo" accept="image/*" class="mt-1">
+                    </label>
+                    
+                    <label class="block">
+                        <span class="text-sm font-medium text-gray-700">Observações (opcional)</span>
+                        <textarea id="observacaoEntrega" rows="3" placeholder="Alguma observação sobre a entrega?"></textarea>
+                    </label>
+                </div>
+
+                <div class="botoes-modal">
+                    <button onclick="fecharModal()" class="btn-cancelar">Cancelar</button>
+                    <button onclick="finalizarEntrega()" id="btnFinalizar" class="btn-finalizar-foto">Finalizar Entrega</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Controle de telas
+        function mostrarTela(idTela) {
+            document.querySelectorAll('.tela').forEach(tela => {
+                tela.classList.remove('ativa');
+            });
+            document.getElementById(idTela).classList.add('ativa');
+        }
+
+        function mostrarSubtela(idSubtela) {
+            document.querySelectorAll('.subtela').forEach(subtela => {
+                subtela.classList.remove('ativa');
+            });
+            document.getElementById(idSubtela).classList.add('ativa');
+            
+            // Atualizar abas
+            document.getElementById('abaLogin').classList.remove('border-orange-500', 'font-medium');
+            document.getElementById('abaLogin').classList.add('text-gray-500');
+            document.getElementById('abaCadastro').classList.remove('border-orange-500', 'font-medium');
+            document.getElementById('abaCadastro').classList.add('text-gray-500');
+            
+            if (idSubtela === 'login') {
+                document.getElementById('abaLogin').classList.add('border-orange-500', 'font-medium');
+                document.getElementById('abaLogin').classList.remove('text-gray-500');
+            } else {
+                document.getElementById('abaCadastro').classList.add('border-orange-500', 'font-medium');
+                document.getElementById('abaCadastro').classList.remove('text-gray-500');
+            }
+        }
+
+        // Verificar normas
+        const checkboxNormas = document.getElementById('concordoNormas');
+        const btnAvancarNormas = document.getElementById('btnAvancarNormas');
+        
+        if (checkboxNormas) {
+            checkboxNormas.addEventListener('change', function() {
+                btnAvancarNormas.classList.toggle('hidden', !this.checked);
+            });
+        }
+
+        function avancarParaPainel() {
+            mostrarTela('telaPainelEntregador');
+            carregarDadosEntregador();
+        }
+
+        // Login do entregador
+        async function fazerLoginEntregador(botao) {
+            const login = document.getElementById('loginEntregador').value.trim();
+            const senha = document.getElementById('senhaEntregador').value.trim();
+            const aviso = document.getElementById('avisoLogin');
+
+            if (!login || !senha) {
+                aviso.textContent = 'Preencha login e senha';
+                aviso.classList.remove('hidden');
+                return;
+            }
+
+            botao.disabled = true;
+            botao.textContent = 'Verificando...';
+            aviso.classList.add('hidden');
+
+            try {
+                const resposta = await fetch(`${API}/entregadores/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ login, senha })
+                });
+
+                const dados = await resposta.json();
+
+                if (dados.sucesso) {
+                    localStorage.setItem('entregador', JSON.stringify(dados.entregador));
+                    mostrarTela('telaNormas');
+                } else {
+                    aviso.textContent = dados.mensagem || 'Aguardando aprovação ou dados incorretos';
+                    aviso.classList.remove('hidden');
+                }
+            } catch (erro) {
+                aviso.textContent = 'Erro de conexão. Tente novamente.';
+                aviso.classList.remove('hidden');
+            } finally {
+                botao.disabled = false;
+                botao.textContent = 'Entrar';
+            }
+        }
+
+        // Cadastro do entregador
+        async function enviarCadastro(botao) {
+            const senha = document.getElementById('cadSenha').value;
+            const confirmaSenha = document.getElementById('cadConfirmaSenha').value;
+
+            if (senha !== confirmaSenha) {
+                alert('As senhas não coincidem');
+                return;
+            }
+
+            const formDados = new FormData();
+            formDados.append('nome', document.getElementById('cadNome').value.trim());
+            formDados.append('cpf', document.getElementById('cadCpf').value.trim());
+            formDados.append('telefone', document.getElementById('cadTelefone').value.trim());
+            formDados.append('endereco', document.getElementById('cadEndereco').value.trim());
+            formDados.append('modeloVeiculo', document.getElementById('cadModeloVeiculo').value.trim());
+            formDados.append('anoVeiculo', document.getElementById('cadAnoVeiculo').value.trim());
+            formDados.append('placaVeiculo', document.getElementById('cadPlacaVeiculo').value.trim());
+            formDados.append('cnhNumero', document.getElementById('cadCnhNumero').value.trim());
+            formDados.append('cnhCategoria', document.getElementById('cadCnhCategoria').value.trim());
+            formDados.append('cnhValidade', document.getElementById('cadCnhValidade').value);
+            formDados.append('login', document.getElementById('cadLogin').value.trim());
+            formDados.append('senha', document.getElementById('cadSenha').value);
+            
+            const fotoCnh = document.getElementById('cadFotoCnh').files[0];
+            if (fotoCnh) {
+                formDados.append('fotoCnh', fotoCnh);
+            }
+
+            botao.disabled = true;
+            botao.textContent = 'Enviando...';
+
+            try {
+                const resposta = await fetch(`${API}/entregadores/cadastrar`, {
+                    method: 'POST',
+                    body: formDados
+                });
+
+                const dados = await resposta.json();
+
+                if (dados.sucesso) {
+                    alert('Cadastro enviado com sucesso! Aguarde a aprovação.');
+                    mostrarSubtela('login');
+                } else {
+                    alert(dados.mensagem || 'Erro ao enviar cadastro');
+                }
+            } catch (erro) {
+                alert('Erro de conexão. Tente novamente.');
+            } finally {
+                botao.disabled = false;
+                botao.textContent = 'Enviar para Análise';
+            }
+        }
+
+        // Controle de status online/offline
+        let statusOnline = false;
+        let entregadorAtual = null;
+
+        function carregarDadosEntregador() {
+            const salvo = localStorage.getItem('entregador');
+            if (salvo) {
+                entregadorAtual = JSON.parse(salvo);
+                document.getElementById('qtdPedidos').textContent = entregadorAtual.totalPedidos || '0';
+                document.getElementById('qtdEntregues').textContent = entregadorAtual.entregues || '0';
+                document.getElementById('totalGanhos').textContent = entregadorAtual.ganhos 
+                    ? `R$ ${Number(entregadorAtual.ganhos).toFixed(2).replace('.', ',')}` 
+                    : 'R$ 0,00';
+            }
+        }
+
+        async function alternarStatus() {
+            if (!entregadorAtual) return;
+
+            statusOnline = !statusOnline;
+            const btnStatus = document.getElementById('btnStatus');
+            const statusTexto = document.getElementById('statusOnline');
+
+            try {
+                await fetch(`${API}/entregadores/status`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        id: entregadorAtual.id, 
+                        online: statusOnline 
+                    })
+                });
+            } catch (erro) {
+                console.error('Erro ao atualizar status:', erro);
+            }
+
+            if (statusOnline) {
+                statusTexto.textContent = 'ONLINE';
+                statusTexto.classList.add('text-green-400', 'font-bold');
+                statusTexto.classList.remove('text-gray-400');
+                btnStatus.textContent = 'Desativar';
+                btnStatus.classList.add('bg-red-500', 'text-white');
+                btnStatus.classList.remove('bg-white', 'text-orange-500');
+                carregarPedidos();
+            } else {
+                statusTexto.textContent = 'OFFLINE';
+                statusTexto.classList.remove('text-green-400', 'font-bold');
+                statusTexto.classList.add('text-gray-400');
+                btnStatus.textContent = 'Ativar';
+                btnStatus.classList.remove('bg-red-500', 'text-white');
+                btnStatus.classList.add('bg-white', 'text-orange-500');
+            }
+        }
+
+        let pedidoEmAndamento = null;
+
+        async function carregarPedidos() {
+            if (!statusOnline || !entregadorAtual) return;
+
+            try {
+                const resposta = await fetch(`${API}/pedidos/disponiveis`);
+                const pedidos = await resposta.json();
+                const lista = document.getElementById('listaPedidos');
+
+                if (pedidos.length === 0) {
+                    lista.innerHTML = '<p class="text-gray-500 text-sm text-center py-4">Nenhum pedido disponível no momento</p>';
+                    return;
+                }
+
+                lista.innerHTML = '';
+                pedidos.forEach(pedido => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-white rounded-lg shadow p-4 border-l-4 border-orange-500';
+                    card.innerHTML = `
+                        <h3 class="font-semibold mb-2">Pedido #${pedido.id}</h3>
+                        <p class="text-sm text-gray-600 mb-1"><strong>Loja:</strong> ${pedido.loja}</p>
+                        <p class="text-sm text-gray-600 mb-1"><strong>Endereço:</strong> ${pedido.enderecoEntrega}</p>
+                        <p class="text-sm text-green-600 font-medium mb-3">Taxa: R$ ${Number(pedido.taxaEntrega).toFixed(2).replace('.', ',')}</p>
+                        <button onclick="aceitarPedido(${pedido.id})" class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg text-sm">
+                            Aceitar Entrega
+                        </button>
+                          
+                `;
+                    lista.appendChild(card);
+                });
+            } catch (erro) {
+                console.error('Erro ao carregar pedidos:', erro);
+                document.getElementById('listaPedidos').innerHTML = 
+                    '<p class="text-red-500 text-sm text-center py-4">Erro ao carregar pedidos</p>';
+            }
+        }
+
+        async function aceitarPedido(idPedido) {
+            if (!confirm('Confirma que deseja aceitar este pedido?')) return;
+            
+            try {
+                const resposta = await fetch(`${API}/pedidos/aceitar`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id_pedido: idPedido,
+                        id_entregador: entregadorAtual.id
+                    })
+                });
+
+                const dados = await resposta.json();
+                
+                if (dados.sucesso) {
+                    pedidoEmAndamento = dados.pedido;
+                    mostrarPedidoAtual();
+                } else {
+                    alert(dados.mensagem || 'Não foi possível aceitar o pedido');
+                }
+            } catch (erro) {
+                alert('Erro de conexão ao aceitar pedido');
+            }
+        }
+
+        function mostrarPedidoAtual() {
+            if (!pedidoEmAndamento) return;
+            
+            document.getElementById('pedidosDisponiveis').classList.add('hidden');
+            const secaoPedido = document.getElementById('pedidoAtual');
+            secaoPedido.classList.remove('hidden');
+            
+            const conteudo = document.getElementById('dadosPedidoAtual');
+            conteudo.innerHTML = `
+                <h3 class="font-bold text-lg text-orange-600">Pedido #${pedidoEmAndamento.id}</h3>
+                <p class="text-sm"><strong>Loja:</strong> ${pedidoEmAndamento.loja || 'Não informada'}</p>
+                <p class="text-sm"><strong>Cliente:</strong> ${pedidoEmAndamento.cliente || 'Não informado'}</p>
+                <p class="text-sm"><strong>Endereço de entrega:</strong> ${pedidoEmAndamento.enderecoEntrega || 'Não informado'}</p>
+                <p class="text-sm"><strong>Telefone:</strong> ${pedidoEmAndamento.telefoneCliente || 'Não informado'}</p>
+                <p class="text-sm text-green-600 font-medium"><strong>Taxa:</strong> R$ ${Number(pedidoEmAndamento.taxaEntrega || 0).toFixed(2).replace('.', ',')}</p>
+            `;
+        }
+
+        function abrirModalConfirmacao() {
+            document.getElementById('modalConfirmarEntrega').style.display = 'flex';
+        }
+
+        function fecharModal() {
+            document.getElementById('modalConfirmarEntrega').style.display = 'none';
+            document.getElementById('fotoComprovativo').value = '';
+            document.getElementById('observacaoEntrega').value = '';
+        }
+
+        async function finalizarEntrega() {
+            if (!pedidoEmAndamento) return;
+            
+            const foto = document.getElementById('fotoComprovativo').files[0];
+            const observacao = document.getElementById('observacaoEntrega').value.trim();
+            const btn = document.getElementById('btnFinalizar');
+            
+            if (!foto) {
+                alert('⚠️ Selecione a foto do comprovativo!');
+                return;
+            }
+            
+            const formDados = new FormData();
+            formDados.append('id_pedido', pedidoEmAndamento.id);
+            formDados.append('id_entregador', entregadorAtual.id);
+            formDados.append('observacao', observacao);
+            formDados.append('foto_comprovativo', foto);
+            
+            btn.disabled = true;
+            btn.textContent = 'Enviando...';
+            
+            try {
+                const resposta = await fetch(`${API}/pedidos/finalizar`, {
+                    method: 'POST',
+                    body: formDados
+                });
+                
+                const dados = await resposta.json();
+                
+                if (dados.sucesso) {
+                    alert('✅ Entrega finalizada com sucesso!');
+                    
+                    // Atualizar contadores locais
+                    entregadorAtual.entregues = (entregadorAtual.entregues || 0) + 1;
+                    entregadorAtual.ganhos = (Number(entregadorAtual.ganhos) || 0) + Number(pedidoEmAndamento.taxaEntrega || 0);
+                    localStorage.setItem('entregador', JSON.stringify(entregadorAtual));
+                    carregarDadosEntregador();
+                    
+                    // Resetar estado
+                    pedidoEmAndamento = null;
+                    document.getElementById('pedidoAtual').classList.add('hidden');
+                    document.getElementById('pedidosDisponiveis').classList.remove('hidden');
+                    fecharModal();
+                    carregarPedidos();
+                } else {
+                    alert(dados.mensagem || 'Erro ao finalizar entrega');
+                }
+            } catch (erro) {
+                alert('❌ Erro de conexão ao finalizar entrega');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Finalizar Entrega';
+            }
+        }
+
+        async function cancelarPedido() {
+            if (!pedidoEmAndamento) return;
+            if (!confirm('Tem certeza que deseja desistir deste pedido?')) return;
+            
+            try {
+                const resposta = await fetch(`${API}/pedidos/cancelar-entrega`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id_pedido: pedidoEmAndamento.id,
+                        id_entregador: entregadorAtual.id
+                    })
+                });
+                
+                const dados = await resposta.json();
+                
+                if (dados.sucesso) {
+                    pedidoEmAndamento = null;
+                    document.getElementById('pedidoAtual').classList.add('hidden');
+                    document.getElementById('pedidosDisponiveis').classList.remove('hidden');
+                    carregarPedidos();
+                } else {
+                    alert(dados.mensagem || 'Não foi possível cancelar o pedido');
+                }
+            } catch (erro) {
+                alert('Erro de conexão ao cancelar');
+            }
+        }
+
+        function sairPainel() {
+            if (confirm('Deseja sair da conta?')) {
+                statusOnline = false;
+                pedidoEmAndamento = null;
+                entregadorAtual = null;
+                localStorage.removeItem('entregador');
+                mostrarTela('telaInicial');
+            }
+        }
+
+        // Fechar modal ao clicar fora
+        document.getElementById('modalConfirmarEntrega').addEventListener('click', function(e) {
+            if (e.target === this) fecharModal();
+        });
+    </script>
+</body>
+</html>

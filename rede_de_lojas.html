@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Lojas Cadastradas na Rede</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+            background-color: #f8f9fa;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+            color: #333;
+            font-size: 28px;
+        }
+        .loja-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .status-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .bolinha {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .bolinha.verde { background-color: #28a745; box-shadow: 0 0 6px rgba(40,167,69,0.4); }
+        .bolinha.vermelha { background-color: #dc3545; }
+        .bolinha.cinza { background-color: #6c757d; }
+        .info {
+            font-size: 16px;
+            color: #555;
+        }
+        .aviso {
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-top: 8px;
+        }
+        .aviso.aberto { background: rgba(16,185,129,0.1); color: #047857; border: 1px solid #10b981; }
+        .aviso.fechado { background: rgba(245,158,11,0.1); color: #b45309; border: 1px solid #f59e0b; }
+        .botao-acao {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            margin-top: 8px;
+            transition: background 0.2s;
+        }
+        .botao-liberado {
+            background-color: #007bff;
+            color: white;
+        }
+        .botao-liberado:hover {
+            background-color: #0056b3;
+        }
+        .botao-bloqueado {
+            background-color: #6c757d;
+            color: white;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .carregando {
+            text-align: center;
+            color: #666;
+            font-size: 18px;
+            padding: 40px;
+        }
+    </style>
+</head>
+<body>
+    <h1>📋 Lojas Cadastradas na Rede</h1>
+    <div id="lista-lojas" class="carregando">🔍 Verificando status no PDV de cada loja...</div>
+
+    <script>
+        // ⚙️ Configurações fixas
+        const SERVIDOR_REGISTRO = "http://localhost:3000";
+
+        async function carregarTodasLojas() {
+            const container = document.getElementById("lista-lojas");
+            container.innerHTML = `<div class="carregando">🔍 Carregando lista de lojas...</div>`;
+
+            try {
+                // 1. Busca a lista de lojas cadastradas no servidor principal
+                const respRegistro = await fetch(`${SERVIDOR_REGISTRO}/config/registro_lojas.json`);
+                if (!respRegistro.ok) throw new Error("Não foi possível carregar o registro");
+                const dadosRegistro = await respRegistro.json();
+                const listaLojas = dadosRegistro.lojas || [];
+
+                if (listaLojas.length === 0) {
+                    container.innerHTML = `<div class="loja-card"><p>Nenhuma loja cadastrada no momento.</p></div>`;
+                    return;
+                }
+
+                // 2. Consulta CADA PDV INDIVIDUALMENTE (app.py de cada loja)
+                const lojasComStatus = await Promise.all(
+                    listaLojas.map(async (loja) => {
+                        // Dados básicos da loja
+                        const cnpjLoja = loja.documento || loja.id || "";
+                        const enderecoPdv = loja.ip_pdv || `http://192.168.15.82:5000`;
+                        const linkVitrineLoja = `${enderecoPdv}/vitrine/${cnpjLoja.replace(/\D/g, '')}`;
+
+                        // Valores padrão se não conseguir conectar
+                        let statusLed = "cinza";
+                        let liberadoPelaLoja = false;
+                        let recebePedidos = false;
+                        let mensagemStatus = "Sem comunicação com a loja";
+
+                        try {
+                            // ✅ CONSULTA DIRETO NO APP.PY DA PRÓPRIA LOJA
+                            // O app.py já tem o CNPJ fixo dele, não precisa enviar
+                            const respStatus = await fetch(`${enderecoPdv}/api/status-loja`, {
+                                signal: AbortSignal.timeout(3000)
+                            });
+
+                            if (respStatus.ok) {
+                                const dadosLoja = await respStatus.json();
+                                // O que vem do app.py da loja é a verdade absoluta
+                                statusLed = dadosLoja.status_led || "vermelho";
+                                liberadoPelaLoja = dadosLoja.liberar_vitrine === true;
+                                recebePedidos = dadosLoja.recebe_pedidos === true;
+                                mensagemStatus = dadosLoja.status_texto || "Conectado";
+                            }
+                        } catch (erro) {
+                            console.warn(`Loja ${loja.nome}: sem resposta no endereço ${enderecoPdv}`);
+                        }
+
+                        // ✅ SÓ LIBERA SE O PRÓPRIO APP.PY DA LOJA DISSER QUE SIM
+                        const podeAcessar = liberadoPelaLoja && statusLed === "verde" && recebePedidos;
+
+                        return {
+                            nome: loja.nome || "Loja Sem Nome",
+                            cnpj: cnpjLoja,
+                            endereco_pdv: enderecoPdv,
+                            status_led: statusLed,
+                            liberado: liberadoPelaLoja,
+                            recebe_pedidos: recebePedidos,
+                            mensagem: mensagemStatus,
+                            link_vitrine: linkVitrineLoja,
+                            pode_acessar: podeAcessar
+                        };
+                    })
+                );
+
+                // 3. Monta os cards com os dados de cada loja
+                container.innerHTML = lojasComStatus.map(loja => {
+                    const corBolinha = loja.status_led === "verde" ? "verde" : loja.status_led === "vermelho" ? "vermelha" : "cinza";
+
+                    return `
+                    <div class="loja-card">
+                        <div class="status-header">
+                            <span class="bolinha ${corBolinha}"></span>
+                            ${loja.nome}
+                        </div>
+                        <div class="info">CNPJ/ID: ${loja.cnpj || "---"}</div>
+                        <div class="info">Endereço PDV: ${loja.endereco_pdv}</div>
+                        <div class="info">Status: ${loja.mensagem}</div>
+                        <div class="info">Recebimento de pedidos: ${loja.recebe_pedidos ? "✅ Ativo" : "❌ Desativado"}</div>
+
+                        ${loja.pode_acessar 
+                            ? `<a href="${loja.link_vitrine}" target="_blank" class="botao-acao botao-liberado">🔗 Acessar Vitrine da Loja</a>
+                               <div class="aviso aberto">✅ Liberado pelo sistema da própria loja</div>`
+                            : `<button disabled class="botao-acao botao-bloqueado">❌ Indisponível</button>
+                               <div class="aviso fechado">Ligue o botão online no PDV da loja para liberar</div>`
+                        }
+                    </div>
+                    `;
+                }).join("");
+
+            } catch (erro) {
+                container.innerHTML = `
+                    <div class="loja-card">
+                        <div class="status-header">
+                            <span class="bolinha cinza"></span>
+                            Erro ao carregar
+                        </div>
+                        <div class="info">Erro: ${erro.message}</div>
+                    </div>
+                `;
+            }
+        }
+
+        carregarTodasLojas();
+        setInterval(carregarTodasLojas, 60000);
+    </script>
+</body>
+</html>

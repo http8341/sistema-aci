@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A.C.I - Loja Online </title>
+    <script src="https://unpkg.com/qrcode-generator@1.4.4/qrcode.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #e8f2fc;
+            color: #2c3e50;
+            padding-top: 80px;
+        }
+
+        .topo-superior {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 12px 20px;
+            background: #2980b9;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            z-index: 999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .topo-superior h2 {
+            color: white;
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        .container-central {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .painel-letreiro {
+            margin-bottom: 25px;
+            background: #000000;
+            border: 3px solid #ffcc00;
+            border-radius: 999px;
+            height: 50px;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .texto-rolante {
+            color: #ffcc00;
+            font-size: 20px;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            white-space: nowrap;
+            animation: rolar 30s linear infinite;
+            padding-left: 100%;
+        }
+
+        @keyframes rolar {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-200%); }
+        }
+
+        .editar-oferta {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            gap: 8px;
+        }
+
+        .editar-oferta input {
+            padding: 5px 8px;
+            font-size: 14px;
+            border: 1px solid #ffcc00;
+            border-radius: 4px;
+            background: #111;
+            color: #ffcc00;
+            width: 180px;
+        }
+
+        .editar-oferta button {
+            padding: 5px 10px;
+            font-size: 13px;
+            border: none;
+            border-radius: 4px;
+            background: #ffcc00;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .editar-oferta button:hover {
+            background: #fff;
+        }
+
+        .cabecalho {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 25px;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(41, 128, 185, 0.2);
+            border-left: 5px solid #2980b9;
+        }
+
+        .cabecalho h1 {
+            color: #2980b9;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .cabecalho p {
+            color: #547b9b;
+            font-size: 16px;
+        }
+
+        .barra-pesquisa {
+            position: relative;
+            margin-bottom: 30px;
+            z-index: 100;
+        }
+
+        .input-pesquisa {
+            width: 100%;
+            padding: 18px 22px;
+            font-size: 20px;
+            border: 2px solid #2980b9;
+            border-radius: 10px;
+            outline: none;
+            background: #ffffff;
+            box-shadow: 0 2px 8px rgba(41, 128, 185, 0.15);
+        }
+
+        .lista-sugestoes {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #ffffff;
+            border: 2px solid #2980b9;
+            border-top: none;
+            border-radius: 0 0 10px 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+            z-index: 101;
+            box-shadow: 0 4px 12px rgba(41, 128, 185, 0.2);
+        }
+
+        .item-sugestao {
+            padding: 16px 22px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #e0edf8;
+            transition: 0.15s;
+        }
+
+        .item-sugestao:hover {
+            background: #f0f7ff;
+        }
+
+        .carrinho {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(41, 128, 185, 0.2);
+            border-top: 5px solid #2980b9;
+            margin-bottom: 25px;
+        }
+
+        .carrinho h2 {
+            color: #2980b9;
+            margin-bottom: 25px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e0edf8;
+            font-size: 24px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+        }
+
+        th {
+            text-align: left;
+            padding: 14px;
+            background: #f0f7ff;
+            color: #2980b9;
+            border-bottom: 2px solid #c9e0f5;
+        }
+
+        td {
+            padding: 16px 14px;
+            border-bottom: 1px solid #e0edf8;
+        }
+
+        .btn-remover {
+            background: #e74c3c;
+            color: #ffffff;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+        .btn-remover:hover {
+            background: #c0392b;
+        }
+
+        .rodape-carrinho {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 25px;
+            border-top: 2px solid #e0edf8;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .linha-valor {
+            display: flex;
+            justify-content: space-between;
+            margin: 6px 0;
+            font-size: 17px;
+            min-width: 250px;
+        }
+
+        .linha-valor.total {
+            font-weight: bold;
+            font-size: 20px;
+            color: #27ae60;
+            border-top: 1px dashed #cccccc;
+            padding-top: 10px;
+            margin-top: 10px;
+        }
+
+        .btn-pagar {
+            background: #27ae60;
+            color: #ffffff;
+            border: none;
+            padding: 16px 35px;
+            border-radius: 10px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 3px 8px rgba(39, 174, 96, 0.25);
+            transition: 0.2s;
+        }
+
+        .btn-pagar:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .btn-pagar:hover:not(:disabled) {
+            background: #219653;
+        }
+
+        .area-pix {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(41, 128, 185, 0.2);
+            border-top: 5px solid #27ae60;
+            text-align: center;
+            display: none;
+            margin-bottom: 25px;
+        }
+
+        .area-pix h3 {
+            color: #27ae60;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .codigo-pix {
+            width: 100%;
+            padding: 12px;
+            font-size: 14px;
+            border: 2px solid #27ae60;
+            border-radius: 8px;
+            background: #f8fff9;
+            color: #2c3e50;
+            resize: none;
+            margin: 15px 0;
+            font-family: monospace;
+        }
+
+        .aviso {
+            margin-top: 15px;
+            padding: 10px;
+            background: #fffbe6;
+            border: 1px solid #ffe58f;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #856404;
+        }
+
+        .dados-entrega {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(41, 128, 185, 0.2);
+            border-top: 5px solid #f39c12;
+            margin-bottom: 25px;
+            display: none;
+        }
+
+        .dados-entrega h3 {
+            color: #f39c12;
+            font-size: 22px;
+            margin-bottom: 20px;
+        }
+
+        .campo {
+            margin-bottom: 18px;
+        }
+
+        .campo label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .campo input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #dddddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: 0.2s;
+        }
+
+        .campo input:focus {
+            border-color: #f39c12;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.2);
+        }
+
+        .campo input[type="file"] {
+            padding: 8px;
+            background: #f9f9f9;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-conteudo {
+            background: #ffffff;
+            padding: 35px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 480px;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+            border-top: 5px solid #2980b9;
+            animation: aparecer 0.3s ease-out;
+        }
+
+        @keyframes aparecer {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fechar {
+            float: right;
+            font-size: 24px;
+            cursor: pointer;
+            color: #777;
+            transition: 0.2s;
+        }
+
+        .fechar:hover {
+            color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+
+<div class="topo-superior">
+    <h2>Ofertas Especiais ⬇️</h2>
+</div>
+
+<div class="container-central">
+    <div class="painel-letreiro">
+        <div class="texto-rolante" id="textoLetreiro">🔥 OFERTA DO DIA: Arroz 5kg R$22,90 | Feijão 1kg R$7,99 | Açúcar 5kg R$19,50 | Óleo 900ml R$8,49 🔥</div>
+        <div class="editar-oferta">
+            <input type="text" id="campoNovaMensagem" placeholder="Nova mensagem...">
+            <button onclick="atualizarLetreiro()">Salvar</button>
+        </div>
+    </div>
+
+    <div class="cabecalho">
+        <h1>🛒 Mercearia Do Mineiro - Lhe deseja Boas Compras.</h1>
+        <p>Adicione os produtos, pague e envie seus dados para entrega</p>
+    </div>
+
+    <div class="barra-pesquisa">
+        <input type="text" id="pesquisaProduto" class="input-pesquisa" placeholder="Digite o nome ou código do produto...">
+        <div class="lista-sugestoes" id="listaSugestoes"></div>
+    </div>
+
+    <div class="carrinho">
+        <h2>Seu Carrinho</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Produto</th>
+                    <th>Valor Unitário</th>
+                    <th>Quantidade / Peso</th>
+                    <th>Subtotal</th>
+                    <th>Ação</th>
+                </tr>
+            </thead>
+            <tbody id="corpoCarrinho">
+                <tr>
+                    <td colspan="5" style="text-align: center; color: #888;">Nenhum produto adicionado</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="rodape-carrinho">
+            <div>
+                <div class="linha-valor"><span>Subtotal dos produtos:</span><span>R$ <span id="valorSubtotal">0,00</span></span></div>
+                <div class="linha-valor"><span>Taxa de entrega:</span><span>R$ 10,00</span></div>
+                <div class="linha-valor total"><span>Total a pagar:</span><span>R$ <span id="valorTotalFinal">0,00</span></span></div>
+            </div>
+            <button class="btn-pagar" id="botaoPagar" onclick="mostrarPagamento()" disabled>💳 Ir para Pagamento</button>
+        </div>
+    </div>
+
+    <div class="area-pix" id="areaPix">
+        <h3>Pagamento via PIX</h3>
+        <p>Valor total: <strong>R$ <span id="valorPix">0,00</span></strong></p>
+        <div id="qrcode-imagem" style="margin: 20px auto;"></div>
+        <p>Escaneie o QR Code ou copie o código abaixo:</p>
+        <textarea id="codigoPix" class="codigo-pix" rows="4" readonly></textarea>
+        <br>
+        <button class="btn-pagar" onclick="copiarCodigo()">📋 Copiar Código PIX</button>
+        <div class="aviso">⚠️ Após efetuar o pagamento, clique no botão abaixo para informar seus dados e enviar o comprovante.</div>
+        <br>
+        <button class="btn-pagar" onclick="mostrarDadosEntrega()">📤 Enviar Dados e Comprovante</button>
+    </div>
+
+    <div class="dados-entrega" id="areaDadosEntrega">
+        <h3>📝 Coloque seus dados para entrega</h3>
+        <div class="campo">
+            <label>Nome completo *</label>
+            <input type="text" id="nomeCliente" placeholder="Ex: João da Silva" required>
+        </div>
+        <div class="campo">
+            <label>Endereço completo *</label>
+            <input type="text" id="enderecoCliente" placeholder="Rua, número, bairro, cidade e CEP" required>
+        </div>
+        <div class="campo">
+            <label>Telefone / WhatsApp para contato *</label>
+            <input type="text" id="telefoneCliente" placeholder="(19) 99999-8888" required>
+        </div>
+        <div class="campo">
+            <label>Anexar comprovante de pagamento (imagem) *</label>
+            <input type="file" id="comprovanteImg" accept="image/png, image/jpeg, image/jpg, image/webp" required>
+        </div>
+        <br>
+        <button class="btn-pagar" onclick="finalizarPedido()">✅ Confirmar e Enviar Pedido</button>
+    </div>
+</div>
+
+<div class="modal" id="modalConfirmacao">
+    <div class="modal-conteudo">
+        <span class="fechar" onclick="fecharModal()">&times;</span>
+        <h2>✅ Pedido enviado com sucesso!</h2>
+        <p>Seu pedido foi recebido e está <strong>Aguardando confirmação de pagamento</strong>.</p>
+        <p>Assim que verificarmos o pagamento, iremos preparar sua entrega.</p>
+        <br>
+        <button class="btn-pagar" onclick="fecharModal()">OK</button>
+    </div>
+</div>
+
+<script>
+// ===================== CONFIGURAÇÕES =====================
+const API_URL = "http://192.168.15.82:5000";
+const TAXA_ENTREGA = 10.00;
+
+let estoque = [];
+let carrinho = [];
+let codigoPixGerado = "";
+let itensVenda = [];
+
+// ===================== LETREIRO =====================
+function atualizarLetreiro() {
+    const mensagem = document.getElementById("campoNovaMensagem").value.trim();
+    if (!mensagem) { alert("Digite uma mensagem!"); return; }
+    document.getElementById("textoLetreiro").textContent = mensagem;
+    localStorage.setItem("mensagemLetreiro", mensagem);
+    document.getElementById("campoNovaMensagem").value = "";
+}
+
+function carregarLetreiro() {
+    const salva = localStorage.getItem("mensagemLetreiro");
+    if (salva) document.getElementById("textoLetreiro").textContent = salva;
+}
+
+// ===================== ESTOQUE =====================
+async function carregarEstoque() {
+    try {
+        const res = await fetch(`${API_URL}/get_estoque`);
+        if (!res.ok) throw new Error("Erro");
+        estoque = await res.json();
+    } catch (e) {
+        console.error(e);
+        alert("Não foi possível carregar os produtos. Verifique o servidor.");
+    }
+}
+
+// ===================== PESQUISA =====================
+const campoPesquisa = document.getElementById("pesquisaProduto");
+const listaSugestoes = document.getElementById("listaSugestoes");
+
+campoPesquisa.addEventListener("input", () => {
+    const termo = campoPesquisa.value.trim().toUpperCase();
+    listaSugestoes.innerHTML = "";
+    listaSugestoes.style.display = "none";
+    if (!termo) return;
+
+    const resultados = estoque.filter(p => 
+        p.nome.toUpperCase().includes(termo) || p.cod.toUpperCase().includes(termo)
+    );
+
+    if (resultados.length === 0) {
+        listaSugestoes.innerHTML = `<div style="padding:12px; color:#888;">Nenhum produto encontrado</div>`;
+    } else {
+        listaSugestoes.innerHTML = resultados.map(p => `
+            <div class="item-sugestao" onclick="adicionarAoCarrinho('${p.cod}')">
+                <span>${p.nome}</span>
+                <span>R$ ${p.preco.toFixed(2)}</span>
+            </div>`).join("");
+    }
+    listaSugestoes.style.display = "block";
+});
+
+document.addEventListener("click", e => {
+    if (!e.target.closest(".barra-pesquisa")) listaSugestoes.style.display = "none";
+});
+
+// ===================== CARRINHO =====================
+function adicionarAoCarrinho(cod) {
+    const p = estoque.find(x => x.cod === cod);
+    if (!p) return;
+
+    let qtd;
+    if (p.unidade === "KG") {
+        qtd = prompt(`Peso para ${p.nome}:`, "1.000");
+    } else {
+        qtd = prompt(`Quantidade para ${p.nome}:`, "1");
+    }
+    if (!qtd) return;
+
+    const num = parseFloat(qtd.replace(",", "."));
+    if (isNaN(num) || num <= 0) { alert("Valor inválido!"); return; }
+    if (num > p.qtd) { alert(`Estoque disponível: ${p.qtd} ${p.unidade}`); return; }
+
+    const existe = carrinho.find(x => x.cod === cod);
+    if (existe) {
+        if (existe.qtd + num > p.qtd) { alert("Quantidade total maior que o estoque!"); return; }
+        existe.qtd = parseFloat((existe.qtd + num).toFixed(3));
+        existe.subtotal = parseFloat((existe.qtd * existe.preco).toFixed(2));
+    } else {
+        carrinho.push({
+            cod: p.cod, nome: p.nome, preco: p.preco,
+            qtd: num, unidade: p.unidade,
+            subtotal: parseFloat((num * p.preco).toFixed(2))
+        });
+    }
+
+    atualizarCarrinho();
+    listaSugestoes.style.display = "none";
+    campoPesquisa.value = "";
+    document.getElementById("areaPix").style.display = "none";
+    document.getElementById("areaDadosEntrega").style.display = "none";
+}
+
+function atualizarCarrinho() {
+    const corpo = document.getElementById("corpoCarrinho");
+    const botao = document.getElementById("botaoPagar");
+    let subtotal = 0;
+
+    if (carrinho.length === 0) {
+        corpo.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#888;">Nenhum produto adicionado</td></tr>`;
+        botao.disabled = true;
+        itensVenda = [];
+    } else {
+        corpo.innerHTML = carrinho.map((item, i) => {
+            subtotal += item.subtotal;
+            const qtdFmt = item.unidade === "KG" ? item.qtd.toFixed(3) : item.qtd;
+            return `<tr>
+                <td>${item.nome}</td>
+                <td>R$ ${item.preco.toFixed(2)}</td>
+                <td>${qtdFmt} ${item.unidade}</td>
+                <td>R$ ${item.subtotal.toFixed(2)}</td>
+                <td><button class="btn-remover" onclick="removerItem(${i})">Remover</button></td>
+            </tr>`;
+        }).join("");
+        botao.disabled = false;
+        itensVenda = [...carrinho];
+    }
+
+    const total = subtotal + TAXA_ENTREGA;
+    document.getElementById("valorSubtotal").textContent = subtotal.toFixed(2);
+    document.getElementById("valorTotalFinal").textContent = total.toFixed(2);
+}
+
+function removerItem(i) {
+    carrinho.splice(i, 1);
+    atualizarCarrinho();
+    document.getElementById("areaPix").style.display = "none";
+    document.getElementById("areaDadosEntrega").style.display = "none";
+}
+
+// ===================== GERAÇÃO DO PIX — AGORA COM CNPJ =====================
+function mostrarPagamento() {
+    iniciarPagamento();
+    document.getElementById("areaPix").style.display = "block";
+    document.getElementById("areaPix").scrollIntoView({ behavior: "smooth" });
+}
+
+function iniciarPagamento() {
+    if(itensVenda.length === 0) return;
+    
+    let valorTotal = document.getElementById('valorTotalFinal').innerText.replace(',', '.');
+    valorTotal = parseFloat(valorTotal).toFixed(2); 
+
+    // ✅ AQUI ESTÁ A ALTERAÇÃO: CHAVE CNPJ NO LUGAR DO TELEFONE
+    const chavePix = "41177958000130"; // CNPJ sem pontos e traços
+    const nomeRecebedor = "MERCEARIA DO MINEIRO"; // NOME CORRETO DA EMPRESA
+    const cidadeRecebedor = "SAO PAULO"; // CIDADE SEM ACENTOS
+
+    const f = (id, conteudo) => id + conteudo.length.toString().padStart(2, '0') + conteudo;
+
+    let payload = "000201"; 
+    payload += f("26", f("00", "BR.GOV.BCB.PIX") + f("01", chavePix)); 
+    payload += "52048999"; 
+    payload += "5303986"; 
+    payload += f("54", valorTotal); 
+    payload += "5802BR"; 
+    payload += f("59", nomeRecebedor);
+    payload += f("60", cidadeRecebedor);
+    payload += f("62", f("05", "PEDIDO")); 
+    payload += "6304"; 
+
+    function crc16(str) {
+        let crc = 0xFFFF;
+        for (let i = 0; i < str.length; i++) {
+            crc ^= str.charCodeAt(i) << 8;
+            for (let j = 0; j < 8; j++) {
+                if ((crc & 0x8000) !== 0) crc = (crc << 1) ^ 0x1021;
+                else crc <<= 1;
+            }
+        }
+        return (crc & 0xFFFF).toString(16).toUpperCase().padStart(4, '0');
+    }
+
+    const meuPixDinamico = payload + crc16(payload);
+    codigoPixGerado = meuPixDinamico;
+
+    // Atualiza na tela
+    document.getElementById("valorPix").textContent = valorTotal.replace(".", ",");
+    document.getElementById("codigoPix").value = codigoPixGerado;
+
+    // Gera QR Code
+    try {
+        const qr = qrcode(0, "M");
+        qr.addData(codigoPixGerado);
+        qr.make();
+        document.getElementById("qrcode-imagem").innerHTML = qr.createImgTag(6);
+    } catch (e) {
+        console.error(e);
+        document.getElementById("qrcode-imagem").innerHTML = "<p>QR Code indisponível</p>";
+    }
+}
+
+function copiarCodigo() {
+    const campo = document.getElementById("codigoPix");
+    campo.select();
+    campo.setSelectionRange(0, 99999);
+    document.execCommand("copy");
+    alert("✅ Código PIX copiado com sucesso!");
+}
+
+// ===================== FINALIZAÇÃO =====================
+function mostrarDadosEntrega() {
+    document.getElementById("areaDadosEntrega").style.display = "block";
+    document.getElementById("areaDadosEntrega").scrollIntoView({ behavior: "smooth" });
+}
+
+async function finalizarPedido() {
+    const nome = document.getElementById("nomeCliente").value.trim();
+    const endereco = document.getElementById("enderecoCliente").value.trim();
+    const telefone = document.getElementById("telefoneCliente").value.trim();
+    const comprovante = document.getElementById("comprovanteImg").files[0];
+
+    if (!nome || !endereco || !telefone || !comprovante) {
+        alert("⚠️ Preencha todos os campos e envie o comprovante!");
+        return;
+    }
+
+    const subtotal = parseFloat(document.getElementById("valorSubtotal").textContent.replace(",", "."));
+    const total = subtotal + TAXA_ENTREGA;
+
+    const dados = new FormData();
+    dados.append("itens", JSON.stringify(carrinho));
+    dados.append("subtotal_produtos", subtotal.toFixed(2));
+    dados.append("taxa_entrega", TAXA_ENTREGA.toFixed(2));
+    dados.append("total_geral", total.toFixed(2));
+    dados.append("codigo_pix", codigoPixGerado);
+    dados.append("nome", nome);
+    dados.append("endereco", endereco);
+    dados.append("telefone", telefone);
+    dados.append("comprovante", comprovante);
+    dados.append("status", "aguardando_confirmacao");
+
+    try {
+        const res = await fetch(`${API_URL}/receber_pedido`, { method: "POST", body: dados });
+        const retorno = await res.json();
+        if (retorno.sucesso) {
+            carrinho = [];
+            atualizarCarrinho();
+            document.getElementById("nomeCliente").value = "";
+            document.getElementById("enderecoCliente").value = "";
+            document.getElementById("telefoneCliente").value = "";
+            document.getElementById("comprovanteImg").value = "";
+            document.getElementById("areaPix").style.display = "none";
+            document.getElementById("areaDadosEntrega").style.display = "none";
+            codigoPixGerado = "";
+            document.getElementById("modalConfirmacao").style.display = "flex";
+        } else {
+            alert("❌ Erro: " + (retorno.erro || "Tente novamente mais tarde"));
+        }
+    } catch (e) {
+        console.error(e);
+        alert("❌ Sem conexão com o servidor. Verifique se ele está ligado.");
+    }
+}
+
+function fecharModal() {
+    document.getElementById("modalConfirmacao").style.display = "none";
+}
+
+window.addEventListener("load", () => {
+    carregarLetreiro();
+    carregarEstoque();
+});
+</script>
+
+</body>
+</html>

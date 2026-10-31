@@ -1,0 +1,86 @@
+[
+    {
+        "cod": "1001",
+        "nome": "ARROZ CAMIL TIPO 1 5KG",
+        "preco": 29.9,
+        "qtd": 9999995.0,
+        "unidade": "UN"
+    },
+    {
+        "cod": "1002",
+        "nome": "FEIJAO  BIGUA 1KG",
+        "preco": 8.5,
+        "qtd": 20.0,
+        "unidade": "UN"
+    },
+    {
+        "cod": "1003",
+        "nome": "OLEO DE SOJA LIZA  900ML",
+        "preco": 6.9,
+        "qtd": 44,
+        "unidade": "UN"
+    },
+    {
+        "cod": "2001",
+        "nome": "CONTRA FILE KG",
+        "preco": 45,
+        "qtd": 999999936.4,
+        "unidade": "KG"
+    },
+    {
+        "cod": "2002",
+        "nome": "FRANGO INTEIRO KG",
+        "preco": 12.9,
+        "qtd": 100000000000,
+        "unidade": "UN"
+    },
+    {
+        "cod": "3001",
+        "nome": "CERVEJA  BRAHMA  LATA 350ML",
+        "preco": 4.5,
+        "qtd": 71,
+        "unidade": "UN"
+    },
+    {
+        "cod": "3002",
+        "nome": "REFRIGERANTE 2L",
+        "preco": 9,
+        "qtd": 38,
+        "unidade": "UN"
+    },
+    {
+        "cod": "4001",
+        "nome": "CADERNO BROCHURA",
+        "preco": 15,
+        "qtd": 998,
+        "unidade": "UN"
+    },
+    {
+        "cod": "4002",
+        "nome": "CANETA ESFEROGRAFICA",
+        "preco": 2.5,
+        "qtd": 84,
+        "unidade": "UN"
+    },
+    {
+        "cod": "5001",
+        "nome": "SHAMPOO SEDA  400ML",
+        "preco": 18.9,
+        "qtd": 96,
+        "unidade": "UN"
+    },
+    {
+        "cod": "5002",
+        "nome": "SABONETE UN",
+        "preco": 3.5,
+        "qtd": 100,
+        "unidade": "UN"
+    },
+    {
+        "cod": "789090100101",
+        "nome": "ESPONJA DE ACO ASSOLAN ",
+        "preco": 3,
+        "qtd": 998,
+        "unidade": "UN"
+    }
+]

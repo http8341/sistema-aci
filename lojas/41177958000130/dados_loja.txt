@@ -1,0 +1,29 @@
+{
+  "descricao": "Registro oficial de lojas cadastradas",
+  "versao": "1.0",
+  "lojas": [
+    {
+      "id": "41177958000130",
+      "documento": "41177958000130",
+      "nome": "Mercearia  Do Mineiro",
+      "endereco": "Rua  Antonio  Rodrigues De Almeida  695   Jd Itaguaçú  Campinas SP",
+      "pix": {
+        "chave": "00020126360014BR.GOV.BCB.PIX0114411779580001305204000053039865802BR5925CLAUDENICIO ALVES DOS SAN6009SAO PAULO622605223XySCBBfh6Z4iotb5Iv1tF63045E05",
+        "titular": "CLAUDENICIO ALVES DOS SANTOS",
+        "cidade": "CAMPINAS SP"
+      },
+      "data_cadastro": "2026-07-05",
+      "codigo_final": "ACI-41177958000130-566618",
+      "pronta_para_exe": true,
+      "plano": "GRATUITO",
+      "percentual_comissao": 12,
+      "status_sistema": "ATIVO",
+      "recebePedidos": true,
+      "valor_devido": 0,
+      "ultimo_acerto": null,
+      "ultima_atualizacao": "2026-07-05T03:02:46.618Z",
+      "aviso_enviado": false
+    }
+  ]
+}
+    

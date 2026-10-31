@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Sistema A.C.I - Gerenciar Colaboradores</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        fundo: '#0F0F1A',
+                        fundoEscuro: '#080812',
+                        menu: '#121220',
+                        menuHover: '#1A1A2E',
+                        card: '#1A1A2E',
+                        cardClaro: '#222238',
+                        verde: '#10B981',
+                        verdeEscuro: '#059669',
+                        branco: '#FFFFFF',
+                        brancoSuave: '#E0E0FF',
+                        cinza: '#B0B0C0',
+                        cinzaMedio: '#777788',
+                        cinzaEscuro: '#444455',
+                        azul: '#2563EB',
+                        azulEscuro: '#1D4ED8',
+                        amarelo: '#FBBF24',
+                        amareloEscuro: '#F59E0B',
+                        vermelho: '#EF4444',
+                        borda: '#2A2A40',
+                        bordaClara: '#383858',
+                        sombraLeve: 'rgba(0, 0, 0, 0.15)',
+                        sombraForte: 'rgba(0, 0, 0, 0.3)'
+                    },
+                    fontFamily: {
+                        sans: ['Arial', 'Helvetica', 'Segoe UI', 'Roboto', 'sans-serif']
+                    },
+                    fontSize: {
+                        'barra-titulo': '28px',
+                        'titulo-principal': '26px',
+                        'titulo-pagina': '24px',
+                        'subtitulo': '20px',
+                        'texto-menu': '16px',
+                        'texto-corpo': '15px',
+                        'texto-pequeno': '13px',
+                        'texto-minimo': '11px'
+                    },
+                    fontWeight: {
+                        normal: '400',
+                        medio: '500',
+                        semibold: '600',
+                        bold: '700',
+                        extrabold: '800'
+                    },
+                    letterSpacing: {
+                        normal: '0px',
+                        leve: '0.5px',
+                        media: '0.7px',
+                        larga: '1px'
+                    },
+                    borderRadius: {
+                        pequena: '4px',
+                        media: '6px',
+                        grande: '8px',
+                        extra: '12px'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+
+        html {
+            height: 100%;
+            font-size: 16px;
+        }
+
+        body {
+            min-height: 100vh;
+            background-color: #0F0F1A;
+            color: #E0E0FF;
+            font-family: 'Arial', 'Helvetica', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .barra-topo {
+            width: 100%;
+            background-color: #0A0A12;
+            border-bottom: 1px solid #2A2A40;
+            padding: 28px 24px;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .barra-topo h2 {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0;
+            letter-spacing: 0.7px;
+            line-height: 1.2;
+            display: inline-block;
+        }
+
+        .barra-topo .texto-verde {
+            color: #10B981;
+            font-weight: 800;
+        }
+
+        .barra-topo .texto-branco {
+            color: #FFFFFF;
+            font-weight: 500;
+        }
+
+        .estrutura-principal {
+            display: flex;
+            flex-direction: column;
+            min-height: calc(100vh - 98px);
+        }
+
+        @media (min-width: 768px) {
+            .estrutura-principal {
+                flex-direction: row;
+            }
+        }
+
+        .menu-lateral {
+            width: 100%;
+            background-color: #121220;
+            border-right: 1px solid #2A2A40;
+            padding: 24px 16px;
+            flex-shrink: 0;
+            box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.05);
+        }
+
+        @media (min-width: 768px) {
+            .menu-lateral {
+                width: 260px;
+                min-height: calc(100vh - 98px);
+                overflow-y: auto;
+            }
+        }
+
+        .cabecalho-menu {
+            padding-bottom: 22px;
+            margin-bottom: 26px;
+            border-bottom: 1px solid #333348;
+            text-align: center;
+        }
+
+        .cabecalho-menu h1 {
+            font-size: 26px;
+            font-weight: 800;
+            color: #FBBF24;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .cabecalho-menu p {
+            font-size: 14px;
+            color: #B0B0C0;
+            font-style: normal;
+        }
+
+        .menu-navegacao {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .menu-navegacao a {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 15px 18px;
+            margin-bottom: 6px;
+            border-radius: 6px;
+            color: #B0B0C0;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.25s ease-in-out;
+            border-left: 3px solid transparent;
+            background-color: transparent;
+        }
+
+        .menu-navegacao a:hover {
+            background-color: #1A1A2E;
+            color: #FFFFFF;
+            border-left-color: #2563EB;
+            transform: translateX(3px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+        }
+
+        .menu-navegacao a.ativo {
+            background-color: #1A1A2E;
+            color: #FFFFFF;
+            border-left-color: #10B981;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            font-weight: 600;
+        }
+
+        .conteudo-principal {
+            flex: 1;
+            padding: 30px 34px;
+            background-color: #0F0F1A;
+            overflow-y: auto;
+        }
+
+        .cabecalho-pagina {
+            margin-bottom: 30px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #222233;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .cabecalho-pagina h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            letter-spacing: 0.3px;
+        }
+
+        .abas {
+            display: flex;
+            gap: 12px;
+        }
+
+        .aba {
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid #2A2A40;
+        }
+
+        .aba.ativa {
+            background-color: #10B981;
+            border-color: #10B981;
+            color: white;
+        }
+
+        .aba:hover:not(.ativa) {
+            background-color: #1A1A2E;
+        }
+
+        .card {
+            background-color: #1A1A2E;
+            border: 1px solid #2A2A40;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .vazio {
+            text-align: center;
+            padding: 40px;
+            color: #777788;
+            font-size: 16px;
+        }
+
+        .btn {
+            padding: 8px 14px;
+            border: none;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-right: 8px;
+        }
+
+        .btn-aprovar {
+            background-color: #10B981;
+            color: white;
+        }
+
+        .btn-aprovar:hover {
+            background-color: #059669;
+        }
+
+        .btn-rejeitar {
+            background-color: #EF4444;
+            color: white;
+        }
+
+        .btn-rejeitar:hover {
+            background-color: #DC2626;
+        }
+
+        .foto-cnh {
+            max-width: 220px;
+            max-height: 160px;
+            border-radius: 4px;
+            border: 1px solid #333348;
+            margin-top: 8px;
+            background-color: #222238;
+            object-fit: contain;
+        }
+
+        .dados-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .dado-item {
+            background-color: #222238;
+            padding: 8px 12px;
+            border-radius: 4px;
+        }
+
+        .dado-label {
+            font-size: 12px;
+            color: #B0B0C0;
+        }
+
+        .dado-valor {
+            font-weight: 500;
+            color: white;
+        }
+
+        @media (max-width: 767px) {
+            .barra-topo {
+                padding: 22px 16px;
+            }
+            .barra-topo h2 {
+                font-size: 24px;
+            }
+            .menu-lateral {
+                border-right: none;
+                border-bottom: 1px solid #2A2A40;
+            }
+            .conteudo-principal {
+                padding: 20px 16px;
+            }
+            .cabecalho-pagina {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="barra-topo">
+        <h2>
+            <span class="texto-verde">A.C.I</span>
+            <span class="texto-branco"> - Aplicação Comercial Integrada</span>
+        </h2>
+    </div>
+
+    <div class="estrutura-principal">
+        <div class="menu-lateral">
+            <div class="cabecalho-menu">
+                <h1>SISTEMA A.C.I</h1>
+                <p>Painel Administrativo</p>
+            </div>
+
+            <nav class="menu-navegacao">
+                <a href="/">
+                    <span>🏠</span> Início
+                </a>
+                <a href="/cadastrar-lojas">
+                    <span>🏪</span> Cadastrar Lojas
+                </a>
+                <a href="/lojas-cadastradas">
+                    <span>📋</span> Lojas Cadastradas
+                </a>
+                <a href="/gerenciar-entregadores" class="ativo">
+                    <span>👥</span> Gerenciar Colaboradores
+                </a>
+                <a href="/pedidos">
+                    <span>🛍️</span> Pedidos / Compras
+                </a>
+                <a href="/vendas-gerais">
+                    <span>🛒</span> Vendas Gerais
+                </a>
+                <a href="/prestacao-contas">
+                    <span>📋</span> Prestação de Contas
+                </a>
+                <a href="/relatorios">
+                    <span>📊</span> Relatórios
+                </a>
+                <a href="/configuracoes">
+                    <span>⚙️</span> Configurações do Sistema
+                </a>
+            </nav>
+        </div>
+
+        <div class="conteudo-principal">
+            <div class="cabecalho-pagina">
+                <h2>👥 Gerenciar Colaboradores</h2>
+                <div class="abas">
+                    <div class="aba ativa" id="abaPendentes" onclick="trocarAba('pendentes')">Aprovar Cadastros</div>
+                    <div class="aba" id="abaAprovados" onclick="trocarAba('aprovados')">Colaboradores Aprovados</div>
+                </div>
+            </div>
+
+            <div id="conteudoArea">
+                <div class="vazio">Carregando dados...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SERVIDOR = "http://192.168.15.82:3000";
+
+        function trocarAba(tipo) {
+            document.getElementById('abaPendentes').classList.toggle('ativa', tipo === 'pendentes');
+            document.getElementById('abaAprovados').classList.toggle('ativa', tipo === 'aprovados');
+            tipo === 'pendentes' ? carregarPendentes() : carregarAprovados();
+        }
+
+        // ✅ Função que converte caminho completo para URL acessível
+        function caminhoFotoParaUrl(caminhoCompleto) {
+            if (!caminhoCompleto) return '';
+            // Extrai só o nome do arquivo, funciona tanto no Windows (\) quanto no Linux/Mac (/)
+            const nomeArquivo = caminhoCompleto.replace(/^.*[\\\/]/, '');
+            return `${SERVIDOR}/uploads_cnh/${nomeArquivo}`;
+        }
+
+        async function carregarPendentes() {
+            const area = document.getElementById('conteudoArea');
+            area.innerHTML = '<div class="vazio">Carregando cadastros pendentes...</div>';
+
+            try {
+                const res = await fetch(`${SERVIDOR}/api/entregador/pendentes`);
+                const dados = await res.json();
+
+                if (!dados.sucesso || !dados.cadastros || dados.cadastros.length === 0) {
+                    area.innerHTML = '<div class="vazio">Nenhum cadastro pendente de aprovação.</div>';
+                    return;
+                }
+
+                let html = '';
+                dados.cadastros.forEach(cad => {
+                    const urlFoto = caminhoFotoParaUrl(cad.caminho_foto);
+                    html += `
+                    <div class="card">
+                        <h3 class="text-xl font-semibold mb-3 text-brancoSuave">${cad.nome}</h3>
+                        <div class="dados-grid">
+                            <div class="dado-item"><div class="dado-label">CPF</div><div class="dado-valor">${cad.cpf}</div></div>
+                            <div class="dado-item"><div class="dado-label">Telefone</div><div class="dado-valor">${cad.telefone}</div></div>
+                            <div class="dado-item"><div class="dado-label">Endereço</div><div class="dado-valor">${cad.endereco}</div></div>
+                            <div class="dado-item"><div class="dado-label">Login</div><div class="dado-valor">${cad.login}</div></div>
+                            <div class="dado-item"><div class="dado-label">CNH Nº</div><div class="dado-valor">${cad.cnh.numero}</div></div>
+                            <div class="dado-item"><div class="dado-label">Categoria</div><div class="dado-valor">${cad.cnh.categoria}</div></div>
+                            <div class="dado-item"><div class="dado-label">Validade CNH</div><div class="dado-valor">${new Date(cad.cnh.validade).toLocaleDateString('pt-BR')}</div></div>
+                            <div class="dado-item"><div class="dado-label">Veículo</div><div class="dado-valor">${cad.veiculo.modelo} / ${cad.veiculo.ano} / ${cad.veiculo.placa}</div></div>
+                        </div>
+                        <div class="mt-4">
+                            <span class="dado-label">Foto da CNH:</span><br>
+                            <img src="${urlFoto}" alt="CNH" class="foto-cnh" loading="lazy" onerror="this.style.display='none'; this.insertAdjacentHTML('afterend', '<span class=\"text-cinzaMedio\">Imagem não disponível</span>')">
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-borda">
+                            <button class="btn btn-aprovar" onclick="analisarCadastro('${cad.id}', 'aprovar')">✅ Aprovar Cadastro</button>
+                            <button class="btn btn-rejeitar" onclick="analisarCadastro('${cad.id}', 'rejeitar')">❌ Rejeitar</button>
+                        </div>
+                    </div>
+                    `;
+                });
+
+                area.innerHTML = html;
+
+            } catch (erro) {
+                area.innerHTML = `<div class="vazio text-vermelho">Erro ao carregar: ${erro.message}</div>`;
+            }
+        }
+
+        async function carregarAprovados() {
+            const area = document.getElementById('conteudoArea');
+            area.innerHTML = '<div class="vazio">Carregando colaboradores aprovados...</div>';
+
+            try {
+                const res = await fetch(`${SERVIDOR}/api/entregador/aprovados`);
+                const dados = await res.json();
+
+                if (!dados.sucesso || !dados.colaboradores || dados.colaboradores.length === 0) {
+                    area.innerHTML = '<div class="vazio">Nenhum colaborador aprovado até o momento.</div>';
+                    return;
+                }
+
+                let html = '';
+                dados.colaboradores.forEach(colab => {
+                    const urlFoto = caminhoFotoParaUrl(colab.caminho_foto);
+                    html += `
+                    <div class="card">
+                        <h3 class="text-xl font-semibold mb-3 text-brancoSuave">${colab.nome}</h3>
+                        <div class="dados-grid">
+                            <div class="dado-item"><div class="dado-label">CPF</div><div class="dado-valor">${colab.cpf}</div></div>
+                            <div class="dado-item"><div class="dado-label">Telefone</div><div class="dado-valor">${colab.telefone}</div></div>
+                            <div class="dado-item"><div class="dado-label">Endereço</div><div class="dado-valor">${colab.endereco}</div></div>
+                            <div class="dado-item"><div class="dado-label">Login</div><div class="dado-valor">${colab.login}</div></div>
+                            <div class="dado-item"><div class="dado-label">CNH Nº</div><div class="dado-valor">${colab.cnh.numero}</div></div>
+                            <div class="dado-item"><div class="dado-label">Categoria</div><div class="dado-valor">${colab.cnh.categoria}</div></div>
+                            <div class="dado-item"><div class="dado-label">Validade CNH</div><div class="dado-valor">${new Date(colab.cnh.validade).toLocaleDateString('pt-BR')}</div></div>
+                            <div class="dado-item"><div class="dado-label">Veículo</div><div class="dado-valor">${colab.veiculo.modelo} / ${colab.veiculo.ano} / ${colab.veiculo.placa}</div></div>
+                            <div class="dado-item"><div class="dado-label">Aprovado em</div><div class="dado-valor">${colab.data_aprovacao ? new Date(colab.data_aprovacao).toLocaleDateString('pt-BR') : '---'}</div></div>
+                        </div>
+                        <div class="mt-4">
+                            <span class="dado-label">Foto da CNH:</span><br>
+                            <img src="${urlFoto}" alt="CNH" class="foto-cnh" loading="lazy" onerror="this.style.display='none'; this.insertAdjacentHTML('afterend', '<span class=\"text-cinzaMedio\">Imagem não disponível</span>')">
+                        </div>
+                    </div>
+                    `;
+                });
+
+                area.innerHTML = html;
+
+            } catch (erro) {
+                area.innerHTML = `<div class="vazio text-vermelho">Erro ao carregar: ${erro.message}</div>`;
+            }
+        }
+
+        async function analisarCadastro(id, acao) {
+            if (!confirm(`Deseja realmente ${acao === 'aprovar' ? 'APROVAR' : 'REJEITAR'} este cadastro?`)) return;
+
+            try {
+                const res = await fetch(`${SERVIDOR}/api/entregador/analisar`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id, acao })
+                });
+
+                const resultado = await res.json();
+                alert(resultado.mensagem || resultado.erro);
+                carregarPendentes();
+
+            } catch (erro) {
+                alert(`Erro: ${erro.message}`);
+            }
+        }
+
+        window.onload = () => trocarAba('pendentes');
+    </script>
+</body>
+</html>

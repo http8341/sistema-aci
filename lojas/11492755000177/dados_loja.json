@@ -1,0 +1,23 @@
+{
+  "id": "11492755000177",
+  "documento": "11492755000177",
+  "nome": "Ecell Celulares",
+  "endereco": "Rua Pedro Paulo Columbari Nº 1170 Jd  Cidade Univercitaria",
+  "cidade": "Campinas",
+  "ip_pdv": "http://192.168.15.82:5000",
+  "pix": {
+    "chave": "19994790735",
+    "tipo": "outra",
+    "titular": "francisco erivan c silva",
+    "cidade": "Campinas"
+  },
+  "data_cadastro": "2026-07-20",
+  "codigo_final": null,
+  "pronta_para_exe": false,
+  "plano": "GRATUITO",
+  "percentual_comissao": 5,
+  "status_sistema": "ATIVO",
+  "recebePedidos": true,
+  "valor_devido": 0,
+  "ultimo_acerto": null
+}

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prestação de Contas - A.C.I</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        fundo: '#0F0F1A',
+                        menu: '#121220',
+                        card: '#1A1A2E',
+                        verde: '#10B981',
+                        branco: '#FFFFFF',
+                        cinza: '#B0B0C0',
+                        amarelo: '#FBBF24',
+                        azul: '#3B82F6',
+                        erro: '#EF4444',
+                        sucesso: '#10B981'
+                    },
+                    fontFamily: {
+                        sans: ['Arial', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background-color: #0F0F1A; color: #E0E0FF; min-height: 100vh; }
+        .barra-topo { background-color: #0A0A12; border-bottom: 1px solid #2A2A40; padding: 24px; text-align: center; }
+        .barra-topo h2 { font-size: 26px; font-weight: bold; }
+        .texto-verde { color: #10B981; }
+        .texto-branco { color: #FFFFFF; }
+        .menu-lateral { background-color: #121220; min-height: calc(100vh - 90px); width: 260px; padding: 24px 16px; }
+        .menu-lateral a { display: flex; align-items: center; gap: 12px; padding: 14px 16px; margin: 6px 0; border-radius: 6px; color: #B0B0C0; text-decoration: none; transition: all 0.2s; }
+        .menu-lateral a:hover, .menu-lateral a.ativo { background-color: #1A1A2E; color: #FFFFFF; border-left: 3px solid #10B981; }
+        .conteudo { flex: 1; padding: 32px; }
+        input, select { background: #121220; border: 1px solid #2A2A40; color: #FFFFFF; padding: 10px; border-radius: 4px; width: 100%; margin: 6px 0; font-size: 15px; }
+        input:focus, select:focus { outline: none; border-color: #10B981; }
+        label { font-weight: 500; color: #E0E0FF; display: block; margin-top: 8px; }
+        button { border: none; padding: 10px 16px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+        .btn-buscar { background: #3B82F6; color: white; }
+        .btn-buscar:hover { background: #2563EB; }
+        .btn-imprimir { background: #F59E0B; color: white; margin-left: 8px; }
+        .btn-imprimir:hover { background: #D97706; }
+        .mensagem { padding: 14px; border-radius: 4px; margin-bottom: 20px; font-weight: 500; display: none; }
+        .sucesso { background: rgba(16, 185, 129, 0.15); border: 1px solid #10B981; color: #34D399; }
+        .erro { background: rgba(239, 68, 68, 0.15); border: 1px solid #EF4444; color: #F87171; }
+        table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #2A2A40; }
+        th { background: #121220; color: #FFFFFF; }
+        tr:hover { background: #1A1A2E; }
+        .total-geral { background: rgba(16, 185, 129, 0.1); border: 1px solid #10B981; padding: 16px; border-radius: 6px; margin-top: 20px; font-size: 18px; font-weight: bold; text-align: right; }
+    </style>
+</head>
+<body>
+    <div class="barra-topo">
+        <h2><span class="texto-verde">A.C.I</span><span class="texto-branco"> - Aplicação Comercial Integrada</span></h2>
+    </div>
+
+    <div class="flex">
+        <!-- Menu Lateral -->
+        <div class="menu-lateral">
+            <div class="mb-8 pb-4 border-b border-gray-700">
+                <h1 class="text-2xl font-bold text-amarelo">SISTEMA A.C.I</h1>
+                <p class="text-sm text-cinza">Painel Administrativo</p>
+            </div>
+            <nav>
+                <a href="/">🏠 Início</a>
+                <a href="/cadastrar-lojas">🏪 Cadastrar Lojas</a>
+                <a href="/gerenciar-entregadores">🚚 Gerenciar Entregadores</a>
+                <a href="/vendas-gerais">🛒 Vendas Gerais</a>
+                <a href="/prestacao-contas" class="ativo">📋 Prestação de Contas</a>
+                <a href="/relatorios">📊 Relatórios</a>
+                <a href="/configuracoes">⚙️ Configurações</a>
+            </nav>
+        </div>
+
+        <!-- Área de Conteúdo -->
+        <div class="conteudo">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">📋 Prestação de Contas</h2>
+                <button class="btn-imprimir" onclick="window.print()">🖨️ Imprimir Relatório</button>
+            </div>
+
+            <!-- Caixa de mensagem -->
+            <div id="caixaMensagem" class="mensagem"></div>
+
+            <!-- Seletor de Período -->
+            <div class="bg-card p-6 rounded-lg border border-gray-700 mb-6">
+                <h3 class="text-lg font-semibold mb-4">Selecione o Período</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label>Ano</label>
+                        <select id="ano">
+                            <option value="2026">2026</option>
+                            <option value="2025">2025</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Mês</label>
+                        <select id="mes">
+                            <option value="01">Janeiro</option>
+                            <option value="02">Fevereiro</option>
+                            <option value="03">Março</option>
+                            <option value="04">Abril</option>
+                            <option value="05">Maio</option>
+                            <option value="06">Junho</option>
+                            <option value="07">Julho</option>
+                            <option value="08">Agosto</option>
+                            <option value="09">Setembro</option>
+                            <option value="10">Outubro</option>
+                            <option value="11">Novembro</option>
+                            <option value="12">Dezembro</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end">
+                        <button class="btn-buscar w-full" onclick="carregarDados()">🔍 Buscar Dados</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabela de Resultados -->
+            <div class="bg-card p-6 rounded-lg border border-gray-700 overflow-x-auto">
+                <h3 class="text-lg font-semibold mb-4">Resumo por Entregador</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Entregador</th>
+                            <th>Quantidade de Entregas</th>
+                            <th>Valor dos Itens (R$)</th>
+                            <th>Valor da Entrega (R$)</th>
+                            <th>Total Geral (R$)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelaResumo">
+                        <tr><td colspan="5" class="text-center text-cinza py-4">Selecione um período e clique em buscar...</td></tr>
+                    </tbody>
+                </table>
+
+                <div id="totalGeral" class="total-geral" style="display: none;">
+                    Valor Total do Período: R$ <span id="valorTotal">0,00</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SENHA_ADMIN = "ACI@2026";
+        const caixaMensagem = document.getElementById("caixaMensagem");
+        const tabelaResumo = document.getElementById("tabelaResumo");
+        const divTotalGeral = document.getElementById("totalGeral");
+        const spanValorTotal = document.getElementById("valorTotal");
+
+        // Define mês e ano atuais por padrão
+        window.addEventListener("load", () => {
+            const hoje = new Date();
+            document.getElementById("ano").value = hoje.getFullYear();
+            document.getElementById("mes").value = String(hoje.getMonth() + 1).padStart(2, '0');
+        });
+
+        async function carregarDados() {
+            const ano = document.getElementById("ano").value;
+            const mes = document.getElementById("mes").value;
+            const periodo = `${ano}-${mes}-semana-1`; // Ajuste conforme sua lógica de período
+
+            tabelaResumo.innerHTML = `<tr><td colspan="5" class="text-center text-cinza py-4">Carregando dados...</td></tr>`;
+            divTotalGeral.style.display = "none";
+
+            try {
+                const resposta = await fetch(`/api/relatorios/prestacao-contas/${periodo}`, {
+                    headers: { "Authorization": `Bearer ${SENHA_ADMIN}` }
+                });
+
+                const dados = await resposta.json();
+
+                if (!dados.sucesso) throw new Error(dados.erro || "Erro ao buscar dados");
+
+                const listaEntregadores = dados.porEntregador;
+                const totalGeral = dados.totalGeral || 0;
+
+                if (Object.keys(listaEntregadores).length === 0) {
+                    tabelaResumo.innerHTML = `<tr><td colspan="5" class="text-center text-cinza py-4">Nenhuma entrega registrada neste período.</td></tr>`;
+                    return;
+                }
+
+                tabelaResumo.innerHTML = "";
+                for (const chave in listaEntregadores) {
+                    const e = listaEntregadores[chave];
+                    const linha = document.createElement("tr");
+                    linha.innerHTML = `
+                        <td>${chave}</td>
+                        <td>${e.quantidade}</td>
+                        <td>R$ ${e.valorItens.toFixed(2).replace(".", ",")}</td>
+                        <td>R$ ${e.valorEntrega.toFixed(2).replace(".", ",")}</td>
+                        <td>R$ ${e.total.toFixed(2).replace(".", ",")}</td>
+                    `;
+                    tabelaResumo.appendChild(linha);
+                }
+
+                spanValorTotal.textContent = totalGeral.toFixed(2).replace(".", ",");
+                divTotalGeral.style.display = "block";
+
+            } catch (erro) {
+                tabelaResumo.innerHTML = `<tr><td colspan="5" class="text-center text-red-400 py-4">${erro.message}</td></tr>`;
+                mostrarMensagem("Erro ao carregar dados do período", "erro");
+            }
+        }
+
+        function mostrarMensagem(texto, tipo) {
+            caixaMensagem.textContent = texto;
+            caixaMensagem.className = `mensagem ${tipo}`;
+            caixaMensagem.style.display = "block";
+            setTimeout(() => caixaMensagem.style.display = "none", 5000);
+        }
+    </script>
+</body>
+</html>

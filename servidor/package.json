@@ -1,0 +1,17 @@
+{
+  "name": "sistema-aci",
+  "version": "1.1.0",
+  "main": "app.js",
+  "dependencies": {
+    "archiver": "^7.0.1",
+    "axios": "^1.18.1",
+    "cors": "^2.8.6",
+    "express": "^4.22.2",
+    "fs": "^0.0.1-security",
+    "multer": "^2.2.0",
+    "path": "^0.12.7"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

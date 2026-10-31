@@ -1,0 +1,78 @@
+[
+    {
+        "id": "20260720144740",
+        "id_loja": "41177958000130",
+        "nome_cliente": "FRANCISCO ERIVAN CAVALCANTE SILVA",
+        "endereco_entrega": "Rua Pedro Paulo Columbari",
+        "contato": "19994790735",
+        "itens": [
+            {
+                "cod": "1002",
+                "nome": "FEIJAO  BIGUA 1KG",
+                "preco": 8.5,
+                "qtd": 1.0,
+                "unidade": "UN"
+            }
+        ],
+        "subtotal_produtos": 8.5,
+        "taxa_entrega": 10.0,
+        "total_geral": 18.5,
+        "codigo_pix": "00020126360014BR.GOV.BCB.PIX011441177958000130520489995303986540518.505802BR5920MERCEARIA DO MINEIRO6009SAO PAULO62100506PEDIDO63042476",
+        "comprovante_url": "/comprovantes/pedido_20260720144740_Captura_de_tela_2026-06-24_145034.png",
+        "status": "entregue",
+        "data_recebido": "20/07/2026 14:47:40",
+        "data_aprovacao": "20/07/2026 14:48:03",
+        "data_aceite_entrega": "20/07/2026 14:48:35",
+        "data_entrega": "20/07/2026 14:48:52"
+    },
+    {
+        "id": "20260720153453",
+        "id_loja": "41177958000130",
+        "nome_cliente": "FRANCISCO ERIVAN CAVALCANTE SILVA",
+        "endereco_entrega": "Rua Pedro Paulo Columbari",
+        "contato": "19994790735",
+        "itens": [
+            {
+                "cod": "1001",
+                "nome": "ARROZ CAMIL TIPO 1 5KG",
+                "preco": 29.9,
+                "qtd": 1.0,
+                "unidade": "UN"
+            }
+        ],
+        "subtotal_produtos": 29.9,
+        "taxa_entrega": 10.0,
+        "total_geral": 39.9,
+        "codigo_pix": "00020126360014BR.GOV.BCB.PIX011441177958000130520489995303986540539.905802BR5920MERCEARIA DO MINEIRO6009SAO PAULO62100506PEDIDO630415EB",
+        "comprovante_url": "/comprovantes/pedido_20260720153453_Captura_de_tela_2026-07-16_232647.png",
+        "status": "entregue",
+        "data_recebido": "20/07/2026 15:34:53",
+        "data_aprovacao": "20/07/2026 15:34:59",
+        "data_aceite_entrega": "20/07/2026 15:35:33",
+        "data_entrega": "20/07/2026 15:35:50"
+    },
+    {
+        "id": "20260723141503",
+        "id_loja": "41177958000130",
+        "nome_cliente": "FRANCISCO ERIVAN CAVALCANTE SILVA",
+        "endereco_entrega": "Rua Pedro Paulo Columbari",
+        "contato": "19994790735",
+        "itens": [
+            {
+                "cod": "2001",
+                "nome": "CONTRA FILE KG",
+                "preco": 45.0,
+                "qtd": 1.0,
+                "unidade": "KG"
+            }
+        ],
+        "subtotal_produtos": 45.0,
+        "taxa_entrega": 10.0,
+        "total_geral": 55.0,
+        "codigo_pix": "00020126360014BR.GOV.BCB.PIX011441177958000130520489995303986540555.005802BR5920MERCEARIA DO MINEIRO6009SAO PAULO62100506PEDIDO63042582",
+        "comprovante_url": "/comprovantes/pedido_20260723141503_Captura_de_tela_2026-07-21_144320.png",
+        "status": "aprovado_aguardando_entrega",
+        "data_recebido": "23/07/2026 14:15:03",
+        "data_aprovacao": "23/07/2026 14:15:31"
+    }
+]

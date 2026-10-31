@@ -1,0 +1,86 @@
+[
+    {
+        "id_entrega": "ENT-20260717204617",
+        "id_pedido": "20260717204617",
+        "id_loja": "41177958000130",
+        "nome_loja": "Mercearia Do Mineiro",
+        "endereco_loja": "Rua Antonio Rodrigues De Almeida 695, Jd Itaguaçú",
+        "cidade_loja": "Campinas",
+        "uf_loja": "SP",
+        "contato_loja": "19-99837-0620",
+        "cliente": "FRANCISCO ERIVAN CAVALCANTE SILVA",
+        "endereco": "Rua Pedro Paulo Columbari Número 1170",
+        "contato": "19994790735",
+        "valor_total": 55.0,
+        "taxa_entrega": 10.0,
+        "itens": [
+            {
+                "cod": "2001",
+                "nome": "CONTRA FILE KG",
+                "preco": 45.0,
+                "qtd": 1.0,
+                "unidade": "KG"
+            }
+        ],
+        "status": "em_andamento",
+        "data": "17/07/2026 20:49:49",
+        "id_entregador": "1783429907571",
+        "nome_entregador": "Francisco Erivan Cavalcante",
+        "data_aceite": "17/07/2026 20:50:02"
+    },
+    {
+        "id_entrega": "ENT-20260717205828",
+        "id_pedido": "20260717205828",
+        "id_loja": "41177958000130",
+        "nome_loja": "Mercearia Do Mineiro",
+        "endereco_loja": "Rua Antonio Rodrigues De Almeida 695, Jd Itaguaçú",
+        "cidade_loja": "Campinas",
+        "uf_loja": "SP",
+        "contato_loja": "19-99837-0620",
+        "cliente": "FRANCISCO ERIVAN CAVALCANTE SILVA",
+        "endereco": "Rua Pedro Paulo Columbari Número 1170",
+        "contato": "19994790735",
+        "valor_total": 39.9,
+        "taxa_entrega": 10.0,
+        "itens": [
+            {
+                "cod": "1001",
+                "nome": "ARROZ CAMIL TIPO 1 5KG",
+                "preco": 29.9,
+                "qtd": 1.0,
+                "unidade": "UN"
+            }
+        ],
+        "status": "em_andamento",
+        "data": "17/07/2026 20:58:38",
+        "id_entregador": "26796345860",
+        "nome_entregador": "FRANCISCO ERIVAN CAVALCANTE SILVA",
+        "data_aceite": "17/07/2026 22:12:46"
+    },
+    {
+        "id_entrega": "ENT-20260717232727",
+        "id_pedido": "20260717232727",
+        "id_loja": "41177958000130",
+        "nome_loja": "Mercearia Do Mineiro",
+        "endereco_loja": "Rua Antonio Rodrigues De Almeida 695, Jd Itaguaçú",
+        "cidade_loja": "Campinas",
+        "uf_loja": "SP",
+        "contato_loja": "19-99837-0620",
+        "cliente": "Ecell Assistência técnica",
+        "endereco": "RUA PEDRO PAULO COLOMBARI",
+        "contato": "19994790735",
+        "valor_total": 39.9,
+        "taxa_entrega": 10.0,
+        "itens": [
+            {
+                "cod": "1001",
+                "nome": "ARROZ CAMIL TIPO 1 5KG",
+                "preco": 29.9,
+                "qtd": 1.0,
+                "unidade": "UN"
+            }
+        ],
+        "status": "aguardando_entregador",
+        "data": "17/07/2026 23:39:41"
+    }
+]

@@ -1,0 +1,140 @@
+[
+    {
+        "id": "PEDIDO-ONLINE-20260720144740",
+        "tipo": "PEDIDO ONLINE",
+        "data_hora": "20/07/2026 14:48:03",
+        "cliente": "FRANCISCO ERIVAN CAVALCANTE SILVA",
+        "telefone": "19994790735",
+        "endereco": "Rua Pedro Paulo Columbari",
+        "itens": [
+            {
+                "cod": "1002",
+                "nome": "FEIJAO  BIGUA 1KG",
+                "preco": 8.5,
+                "qtd": 1.0,
+                "unidade": "UN"
+            }
+        ],
+        "subtotal": 8.5,
+        "taxa_entrega": 10.0,
+        "total": 18.5,
+        "pagamento": "PIX (online)",
+        "forma_pagamento": "PIX",
+        "status_caixa": "ENTREGUE",
+        "observacao": "Aguardando entrega",
+        "id_loja": "41177958000130"
+    },
+    {
+        "data_hora": "2026-07-20 14:48:06",
+        "itens": [
+            {
+                "cod": "1002",
+                "nome": "FEIJAO  BIGUA 1KG",
+                "preco": 8.5,
+                "qtd": 1.0,
+                "unidade": "UN"
+            }
+        ],
+        "id_loja": "41177958000130",
+        "tipo": "LOCAL",
+        "subtotal": 8.5,
+        "taxa_entrega": 10.0,
+        "pagamento": "DINHEIRO",
+        "forma_pagamento": "DINHEIRO",
+        "status_caixa": "FINALIZADO",
+        "com_nota_fiscal": false,
+        "observacao": "Venda sem Nota Fiscal"
+    },
+    {
+        "id": "PEDIDO-ONLINE-20260720153453",
+        "tipo": "PEDIDO ONLINE",
+        "data_hora": "20/07/2026 15:34:59",
+        "cliente": "FRANCISCO ERIVAN CAVALCANTE SILVA",
+        "telefone": "19994790735",
+        "endereco": "Rua Pedro Paulo Columbari",
+        "itens": [
+            {
+                "cod": "1001",
+                "nome": "ARROZ CAMIL TIPO 1 5KG",
+                "preco": 29.9,
+                "qtd": 1.0,
+                "unidade": "UN"
+            }
+        ],
+        "subtotal": 29.9,
+        "taxa_entrega": 10.0,
+        "total": 39.9,
+        "pagamento": "PIX (online)",
+        "forma_pagamento": "PIX",
+        "status_caixa": "ENTREGUE",
+        "observacao": "Aguardando entrega",
+        "id_loja": "41177958000130"
+    },
+    {
+        "data_hora": "2026-07-20 15:35:02",
+        "itens": [
+            {
+                "cod": "1001",
+                "nome": "ARROZ CAMIL TIPO 1 5KG",
+                "preco": 29.9,
+                "qtd": 1.0,
+                "unidade": "UN"
+            }
+        ],
+        "id_loja": "41177958000130",
+        "tipo": "LOCAL",
+        "subtotal": 29.9,
+        "taxa_entrega": 10.0,
+        "pagamento": "DINHEIRO",
+        "forma_pagamento": "DINHEIRO",
+        "status_caixa": "FINALIZADO",
+        "com_nota_fiscal": false,
+        "observacao": "Venda sem Nota Fiscal"
+    },
+    {
+        "id": "PEDIDO-ONLINE-20260723141503",
+        "tipo": "PEDIDO ONLINE",
+        "data_hora": "23/07/2026 14:15:31",
+        "cliente": "FRANCISCO ERIVAN CAVALCANTE SILVA",
+        "telefone": "19994790735",
+        "endereco": "Rua Pedro Paulo Columbari",
+        "itens": [
+            {
+                "cod": "2001",
+                "nome": "CONTRA FILE KG",
+                "preco": 45.0,
+                "qtd": 1.0,
+                "unidade": "KG"
+            }
+        ],
+        "subtotal": 45.0,
+        "taxa_entrega": 10.0,
+        "total": 55.0,
+        "pagamento": "PIX (online)",
+        "forma_pagamento": "PIX",
+        "status_caixa": "AGUARDANDO FINALIZAÇÃO",
+        "observacao": "Aguardando entrega",
+        "id_loja": "41177958000130"
+    },
+    {
+        "data_hora": "2026-07-23 14:15:35",
+        "itens": [
+            {
+                "cod": "2001",
+                "nome": "CONTRA FILE KG",
+                "preco": 45.0,
+                "qtd": 1.0,
+                "unidade": "KG"
+            }
+        ],
+        "id_loja": "41177958000130",
+        "tipo": "LOCAL",
+        "subtotal": 45.0,
+        "taxa_entrega": 10.0,
+        "pagamento": "DINHEIRO",
+        "forma_pagamento": "DINHEIRO",
+        "status_caixa": "FINALIZADO",
+        "com_nota_fiscal": false,
+        "observacao": "Venda sem Nota Fiscal"
+    }
+]

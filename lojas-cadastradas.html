@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lojas Cadastradas - A.C.I</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        fundo: '#0B0B15',
+                        card: '#151526',
+                        destaque: '#10B981',
+                        texto: '#E2E8F0',
+                        borda: '#27273F',
+                        erro: '#EF4444',
+                        aviso: '#F59E0B',
+                        info: '#3B82F6',
+                        vitrine: '#8B5CF6'
+                    }
+                }
+            }
+        }
+        // Configurações corrigidas
+        const API = "http://192.168.15.82:3000/api";
+        const ENDERECO_SERVIDOR = "http://portalregionalcampinas.com.br/aci:3000";
+        const SENHA_ADMIN = "8341@";
+        const CAMINHO_REGISTRO_LOJAS = `${ENDERECO_SERVIDOR}/config/registro_lojas.json`;
+        const ENDERECO_PDV_PADRAO = "http://127.0.0.1:5000";
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(135deg, #0B0B15 0%, #101020 100%);
+            color: #E2E8F0;
+            padding: 2rem 1rem;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #151526;
+            border-radius: 16px;
+            border: 1px solid #27273F;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+            padding: 2.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 4px;
+            background: linear-gradient(90deg, #10B981 0%, #34D399 100%);
+        }
+        .titulo-pagina {
+            font-size: 32px; font-weight: 700;
+            text-align: center; margin-bottom: 1rem;
+            color: #FFFFFF;
+        }
+        .subtitulo {
+            text-align: center; color: #94A3B8;
+            font-size: 18px; margin-bottom: 2.5rem;
+        }
+        .tabela-wrapper {
+            overflow-x: auto;
+            border-radius: 10px;
+            border: 1px solid #27273F;
+        }
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background-color: #1E1E32;
+        }
+        th {
+            background-color: #232338;
+            padding: 16px 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #CBD5E1;
+            border-bottom: 2px solid #27273F;
+        }
+        td {
+            padding: 14px 12px;
+            border-bottom: 1px solid #27273F;
+            vertical-align: middle;
+        }
+        tr:hover {
+            background-color: #232338;
+            transition: background 0.2s;
+        }
+        .status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            text-align: center;
+            display: inline-block;
+            min-width: 90px;
+        }
+        .status-ativo { background: rgba(16, 185, 129, 0.15); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .status-vermelho { background: rgba(239, 68, 68, 0.15); color: #F87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .status-offline { background: rgba(108, 117, 125, 0.15); color: #94A3B8; border: 1px solid rgba(108, 117, 125, 0.3); }
+        .botao-acao {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin: 2px;
+            transition: all 0.2s;
+        }
+        .botao-pdv { background: #3B82F6; color: white; }
+        .botao-pdv:hover { background: #2563EB; }
+        .botao-vitrine { background: #10B981; color: white; }
+        .botao-vitrine:hover { background: #059669; }
+        .botao-vitrine:disabled { background: #27273F; color: #6C757D; cursor: not-allowed; opacity: 0.6; }
+        .botao-link { background: #8B5CF6; color: white; }
+        .botao-link:hover { background: #7C3AED; }
+        .botao-zip { background: #F59E0B; color: white; }
+        .botao-zip:hover { background: #D97706; }
+        .mensagem {
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 500;
+            display: none;
+        }
+        .mensagem.sucesso { background: rgba(16, 185, 129, 0.15); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .mensagem.erro { background: rgba(239, 68, 68, 0.15); color: #F87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .botao-voltar {
+            display: inline-block;
+            margin-top: 2rem;
+            padding: 14px 24px;
+            background: #27273F;
+            color: #E2E8F0;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        .botao-voltar:hover { background: #32324A; }
+        .bolinha-led {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        .bolinha-led.verde { background: #10B981; box-shadow: 0 0 6px rgba(16,185,129,0.5); }
+        .bolinha-led.vermelha { background: #EF4444; box-shadow: 0 0 6px rgba(239,68,68,0.5); }
+        .bolinha-led.cinza { background: #6C757D; }
+        .aviso-api {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid #F59E0B;
+            color: #FBBF24;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="titulo-pagina"><i class="fa fa-list-alt"></i> Lojas Cadastradas</h1>
+        <p class="subtitulo">Lista completa com status de comunicação e acesso à vitrine</p>
+
+        <div id="avisoApi" class="aviso-api" style="display:none;">
+            <i class="fa fa-info-circle"></i> Usando dados do arquivo de registro local.
+        </div>
+
+        <div id="mensagem" class="mensagem"></div>
+
+        <div id="areaTabela" class="tabela-wrapper">
+            <div id="carregando" class="mensagem" style="display:block;">
+                <i class="fa fa-spinner fa-spin mr-2"></i> Carregando dados e status dos PDVs...
+            </div>
+        </div>
+
+        <a href="/" class="botao-voltar">
+            <i class="fa fa-arrow-left"></i>  Inicio
+        </a>
+    </div>
+
+    <script>
+        window.addEventListener('load', carregarLojas);
+
+        function mostrarMensagem(texto, tipo = 'sucesso') {
+            const msg = document.getElementById('mensagem');
+            msg.textContent = texto;
+            msg.className = `mensagem ${tipo}`;
+            msg.style.display = 'block';
+            setTimeout(() => msg.style.display = 'none', 5000);
+        }
+
+        // ==============================================
+        // CONSULTA STATUS DO PDV — ACEITA GET E POST
+        // ==============================================
+        async function consultarStatusPDV(enderecoPdv) {
+            if (!enderecoPdv) return { status_led: 'vermelho', link_vitrine: null };
+            try {
+                let resposta = await fetch(`${enderecoPdv}/api/loja/atualizar-status`, {
+                    method: "GET",
+                    signal: AbortSignal.timeout(4000)
+                });
+                if (!resposta.ok) {
+                    resposta = await fetch(`${enderecoPdv}/api/loja/atualizar-status`, {
+                        method: "POST",
+                        signal: AbortSignal.timeout(4000)
+                    });
+                }
+                if (!resposta.ok) throw new Error("Sem resposta");
+                const dados = await resposta.json();
+                console.log("✅ Resposta do PDV:", dados);
+                return {
+                    status_led: dados.status_led || 'vermelho',
+                    link_vitrine: dados.link_vitrine || null,
+                    nome_loja: dados.nome_loja,
+                    endereco_ip: dados.endereco_ip
+                };
+            } catch (erro) {
+                console.warn(`❌ PDV ${enderecoPdv}: ${erro.message}`);
+                return { status_led: 'offline', link_vitrine: null };
+            }
+        }
+
+        async function carregarLojas() {
+            let lojas = [];
+            const aviso = document.getElementById('avisoApi');
+
+            try {
+                // ✅ PRIMEIRO TENTA LER DIRETO DO ARQUIVO registro_lojas.json
+                console.log(`🔍 Buscando arquivo em: ${CAMINHO_REGISTRO_LOJAS}`);
+                const respostaArquivo = await fetch(CAMINHO_REGISTRO_LOJAS, {
+                    signal: AbortSignal.timeout(5000)
+                });
+
+                if (respostaArquivo.ok) {
+                    const dadosArquivo = await respostaArquivo.json();
+                    // Pega a lista de lojas do arquivo (formato padrão)
+                    lojas = dadosArquivo.lojas || dadosArquivo || [];
+                    aviso.style.display = 'block';
+                    console.log(`✅ Lidas ${lojas.length} lojas do arquivo registro_lojas.json`);
+                } else {
+                    throw new Error("Arquivo não acessível");
+                }
+            } catch {
+                try {
+                    // Se falhar, tenta buscar da API central
+                    console.log(`🔍 Buscando da API: ${API}/listar-lojas`);
+                    const respostaApi = await fetch(`${API}/listar-lojas`, {
+                        headers: { 'Authorization': `Bearer ${SENHA_ADMIN}` },
+                        signal: AbortSignal.timeout(5000)
+                    });
+                    const dadosApi = await respostaApi.json();
+
+                    if (dadosApi.sucesso && dadosApi.lojas && dadosApi.lojas.length > 0) {
+                        lojas = dadosApi.lojas;
+                        aviso.style.display = 'none';
+                        console.log(`✅ Lidas ${lojas.length} lojas da API`);
+                    } else {
+                        throw new Error("Nenhuma loja encontrada");
+                    }
+                } catch (erroFinal) {
+                    // Se tudo falhar, mostra aviso
+                    mostrarMensagem("Não foi possível carregar as lojas. Verifique se o servidor está rodando.", "erro");
+                    document.getElementById('carregando').innerHTML = `<i class="fa fa-exclamation-triangle"></i> Nenhuma loja encontrada`;
+                    return;
+                }
+            }
+
+            // Consulta status de todas as lojas carregadas
+            const lojasComStatus = await Promise.all(
+                lojas.map(async (loja) => {
+                    // Pega o endereço do PDV de forma flexível
+                    const enderecoPdv = loja.endereco_pdv || loja.ip_pdv ? `http://${loja.ip_pdv}:5000` : ENDERECO_PDV_PADRAO;
+                    const statusPdv = await consultarStatusPDV(enderecoPdv);
+                    return { ...loja, endereco_pdv: enderecoPdv, ...statusPdv };
+                })
+            );
+
+            // Monta a tabela com todas as lojas
+            const tabelaHTML = `
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome da Loja</th>
+                        <th>CNPJ</th>
+                        <th>Status PDV</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${lojasComStatus.map(loja => {
+                        let bolinha, textoStatus, classeStatus, botaoVitrine;
+                        if (loja.status_led === 'verde') {
+                            bolinha = 'verde';
+                            textoStatus = 'Online';
+                            classeStatus = 'status-ativo';
+                            botaoVitrine = `<a href="${loja.link_vitrine || loja.endereco_pdv + '/vitrine'}" target="_blank" class="botao-acao botao-vitrine"><i class="fa fa-store"></i> Vitrine</a>`;
+                        } else if (loja.status_led === 'vermelho') {
+                            bolinha = 'vermelha';
+                            textoStatus = 'Offline';
+                            classeStatus = 'status-vermelho';
+                            botaoVitrine = `<button disabled class="botao-acao botao-vitrine"><i class="fa fa-store"></i> Indisponível</button>`;
+                        } else {
+                            bolinha = 'cinza';
+                            textoStatus = 'Sem comunicação';
+                            classeStatus = 'status-offline';
+                            botaoVitrine = `<button disabled class="botao-acao botao-vitrine"><i class="fa fa-store"></i> Indisponível</button>`;
+                        }
+
+                        // Formata o CNPJ corretamente
+                        const cnpjFormatado = loja.documento?.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5') 
+                                            || loja.cnpj?.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5') 
+                                            || '---';
+
+                        return `
+                        <tr>
+                            <td><strong>${loja.id || '---'}</strong></td>
+                            <td>${loja.nome_loja || loja.nome || '---'}</td>
+                            <td>${cnpjFormatado}</td>
+                            <td>
+                                <span class="bolinha-led ${bolinha}"></span>
+                                <span class="status ${classeStatus}">${textoStatus}</span>
+                            </td>
+                            <td>
+                                <a href="${loja.endereco_pdv}" target="_blank" class="botao-acao botao-pdv">
+                                    <i class="fa fa-desktop"></i> PDV
+                                </a>
+                                ${botaoVitrine}
+                            </td>
+                        </tr>
+                        `;
+                    }).join('')}
+                </tbody>
+            </table>
+            `;
+
+            document.getElementById('areaTabela').innerHTML = tabelaHTML;
+        }
+
+        // Atualiza automaticamente a cada 15 segundos
+        setInterval(carregarLojas, 15000);
+    </script>
+</body>
+</html>

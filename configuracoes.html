@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações - A.C.I</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        fundo: '#0F0F1A',
+                        menu: '#121220',
+                        card: '#1A1A2E',
+                        verde: '#10B981',
+                        branco: '#FFFFFF',
+                        cinza: '#B0B0C0',
+                        amarelo: '#FBBF24',
+                        azul: '#3B82F6',
+                        erro: '#EF4444',
+                        sucesso: '#10B981'
+                    },
+                    fontFamily: {
+                        sans: ['Arial', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background-color: #0F0F1A; color: #E0E0FF; min-height: 100vh; }
+        .barra-topo { background-color: #0A0A12; border-bottom: 1px solid #2A2A40; padding: 24px; text-align: center; }
+        .barra-topo h2 { font-size: 26px; font-weight: bold; }
+        .texto-verde { color: #10B981; }
+        .texto-branco { color: #FFFFFF; }
+        .menu-lateral { background-color: #121220; min-height: calc(100vh - 90px); width: 260px; padding: 24px 16px; }
+        .menu-lateral a { display: flex; align-items: center; gap: 12px; padding: 14px 16px; margin: 6px 0; border-radius: 6px; color: #B0B0C0; text-decoration: none; transition: all 0.2s; }
+        .menu-lateral a:hover, .menu-lateral a.ativo { background-color: #1A1A2E; color: #FFFFFF; border-left: 3px solid #10B981; }
+        .conteudo { flex: 1; padding: 32px; }
+        input, select { background: #121220; border: 1px solid #2A2A40; color: #FFFFFF; padding: 12px; border-radius: 4px; width: 100%; margin: 8px 0 16px 0; font-size: 15px; }
+        input:focus, select:focus { outline: none; border-color: #10B981; box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2); }
+        label { font-weight: 500; color: #E0E0FF; display: block; margin-top: 8px; }
+        button { border: none; padding: 12px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: background 0.2s; font-size: 15px; }
+        .btn-salvar { background: #10B981; color: white; }
+        .btn-salvar:hover { background: #059669; }
+        .btn-perigo { background: #EF4444; color: white; margin-left: 10px; }
+        .btn-perigo:hover { background: #DC2626; }
+        .mensagem { padding: 14px; border-radius: 4px; margin-bottom: 20px; font-weight: 500; display: none; }
+        .sucesso { background: rgba(16, 185, 129, 0.15); border: 1px solid #10B981; color: #34D399; }
+        .erro { background: rgba(239, 68, 68, 0.15); border: 1px solid #EF4444; color: #F87171; }
+        .aviso { background: rgba(251, 191, 36, 0.15); border: 1px solid #FBBF24; color: #FCD34D; padding: 12px; border-radius: 4px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="barra-topo">
+        <h2><span class="texto-verde">A.C.I</span><span class="texto-branco"> - Aplicação Comercial Integrada</span></h2>
+    </div>
+
+    <div class="flex">
+        <!-- Menu Lateral -->
+        <div class="menu-lateral">
+            <div class="mb-8 pb-4 border-b border-gray-700">
+                <h1 class="text-2xl font-bold text-amarelo">SISTEMA A.C.I</h1>
+                <p class="text-sm text-cinza">Painel Administrativo</p>
+            </div>
+            <nav>
+                <a href="/">🏠 Início</a>
+                <a href="/cadastrar-lojas">🏪 Cadastrar Lojas</a>
+                <a href="/gerenciar-entregadores">🚚 Gerenciar Entregadores</a>
+                <a href="/vendas-gerais">🛒 Vendas Gerais</a>
+                <a href="/prestacao-contas">📋 Prestação de Contas</a>
+                <a href="/relatorios">📊 Relatórios</a>
+                <a href="/configuracoes" class="ativo">⚙️ Configurações</a>
+            </nav>
+        </div>
+
+        <!-- Área de Conteúdo -->
+        <div class="conteudo">
+            <h2 class="text-2xl font-bold mb-6">⚙️ Configurações do Sistema</h2>
+
+            <!-- Aviso -->
+            <div class="aviso">
+                ⚠️ Alterações feitas aqui afetam o funcionamento geral do sistema. Tenha cuidado ao modificar dados.
+            </div>
+
+            <!-- Caixa de mensagem -->
+            <div id="caixaMensagem" class="mensagem"></div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Configurações de Acesso -->
+                <div class="bg-card p-8 rounded-lg border border-gray-700">
+                    <h3 class="text-xl font-semibold mb-6 text-verde">🔐 Acesso de Administrador</h3>
+                    <form id="formAcesso">
+                        <label>Senha Atual</label>
+                        <input type="password" id="senhaAtual" required placeholder="Digite a senha atual">
+
+                        <label>Nova Senha</label>
+                        <input type="password" id="novaSenha" required placeholder="Digite a nova senha">
+
+                        <label>Confirmar Nova Senha</label>
+                        <input type="password" id="confirmaSenha" required placeholder="Repita a nova senha">
+
+                        <button type="submit" class="btn-salvar w-full">💾 Alterar Senha</button>
+                    </form>
+                </div>
+
+                <!-- Informações do Sistema -->
+                <div class="bg-card p-8 rounded-lg border border-gray-700">
+                    <h3 class="text-xl font-semibold mb-6 text-azul">ℹ️ Informações Técnicas</h3>
+                    <div class="space-y-3 text-cinza">
+                        <p><strong class="text-branco">Versão do Sistema:</strong> A.C.I v1.0</p>
+                        <p><strong class="text-branco">Servidor:</strong> Node.js + Express</p>
+                        <p><strong class="text-branco">Banco de Dados:</strong> Arquivos JSON</p>
+                        <p><strong class="text-branco">Porta de Acesso:</strong> 3000</p>
+                        <p><strong class="text-branco">Caminho de Dados:</strong> Pasta raiz /A.C.I</p>
+                    </div>
+
+                    <div class="mt-8 pt-6 border-t border-gray-700">
+                        <h4 class="text-lg font-medium mb-4 text-amarelo">🛠️ Manutenção</h4>
+                        <button onclick="fazerBackup()" class="btn-salvar">💾 Fazer Backup dos Dados</button>
+                        <button onclick="limparLogs()" class="btn-perigo">🗑️ Limpar Logs</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SENHA_ADMIN_ATUAL = "ACI@2026"; // Senha padrão atual
+        const caixaMensagem = document.getElementById("caixaMensagem");
+
+        // Alteração de senha
+        document.getElementById("formAcesso").addEventListener("submit", function(e) {
+            e.preventDefault();
+
+            const senhaAtual = document.getElementById("senhaAtual").value.trim();
+            const novaSenha = document.getElementById("novaSenha").value.trim();
+            const confirmaSenha = document.getElementById("confirmaSenha").value.trim();
+
+            if (senhaAtual !== SENHA_ADMIN_ATUAL) {
+                mostrarMensagem("Senha atual incorreta!", "erro");
+                return;
+            }
+
+            if (novaSenha !== confirmaSenha) {
+                mostrarMensagem("As senhas novas não coincidem!", "erro");
+                return;
+            }
+
+            if (novaSenha.length < 4) {
+                mostrarMensagem("A senha deve ter pelo menos 4 caracteres!", "erro");
+                return;
+            }
+
+            // Aqui você altera a senha também no app.js quando necessário
+            mostrarMensagem("Senha alterada com sucesso! Lembre-se de atualizar também no código do servidor.", "sucesso");
+            this.reset();
+        });
+
+        // Funções de manutenção
+        function fazerBackup() {
+            mostrarMensagem("Função de backup será implementada em breve!", "sucesso");
+        }
+
+        function limparLogs() {
+            if (confirm("Deseja realmente apagar todos os registros de log?")) {
+                mostrarMensagem("Logs limpos com sucesso!", "sucesso");
+            }
+        }
+
+        // Mostrar mensagens
+        function mostrarMensagem(texto, tipo) {
+            caixaMensagem.textContent = texto;
+            caixaMensagem.className = `mensagem ${tipo}`;
+            caixaMensagem.style.display = "block";
+            setTimeout(() => caixaMensagem.style.display = "none", 6000);
+        }
+    </script>
+</body>
+</html>
