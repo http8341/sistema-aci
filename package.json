@@ -1,5 +1,8 @@
 {
+  "name": "sistema-aci",
+  "version": "1.0.0",
   "dependencies": {
+    "express": "^4.21.0",
     "node-fetch": "^2.7.0"
   }
 }
