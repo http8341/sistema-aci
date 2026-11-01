@@ -2,6 +2,7 @@
   "name": "sistema-aci",
   "version": "1.0.0",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.21.0",
     "node-fetch": "^2.7.0"
   }
