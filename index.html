@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Sistem A.C.I - Painel Administrativo</title>
+    <title>Sistema A.C.I - Painel Administrativo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -40,11 +40,7 @@
         }
     </script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             background-color: #0F0F1A;
             color: #E0E0FF;
@@ -61,16 +57,10 @@
             top: 0;
             z-index: 100;
         }
-        .barra-topo h2 {
-            font-size: 1.7rem;
-            font-weight: 700;
-        }
+        .barra-topo h2 { font-size: 1.7rem; font-weight: 700; }
         .barra-topo .texto-verde { color: #10B981; }
         .barra-topo .texto-branco { color: #FFFFFF; font-weight: 500; }
-        .conteiner-principal {
-            display: flex;
-            min-height: calc(100vh - 72px);
-        }
+        .conteiner-principal { display: flex; min-height: calc(100vh - 72px); }
         .menu-lateral {
             width: 240px;
             background-color: #121220;
@@ -83,255 +73,113 @@
             margin-bottom: 1.5rem;
             border-bottom: 1px solid #333348;
         }
-        .cabecalho-menu h1 {
-            font-size: 1.5rem;
-            color: #FBBF24;
-            margin-bottom: 0.3rem;
-        }
-        .cabecalho-menu p {
-            font-size: 0.9rem;
-            color: #B0B0C0;
-        }
+        .cabecalho-menu h1 { font-size: 1.5rem; color: #FBBF24; margin-bottom: 0.3rem; }
+        .cabecalho-menu p { font-size: 0.9rem; color: #B0B0C0; }
         .menu-navegacao a {
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            padding: 0.9rem 1rem;
-            margin-bottom: 0.4rem;
-            border-radius: 6px;
-            color: #B0B0C0;
-            text-decoration: none;
-            font-size: 1rem;
-            transition: all 0.2s;
-            cursor: pointer;
+            display: flex; align-items: center; gap: 0.8rem;
+            padding: 0.9rem 1rem; margin-bottom: 0.4rem;
+            border-radius: 6px; color: #B0B0C0;
+            text-decoration: none; font-size: 1rem;
+            transition: all 0.2s; cursor: pointer;
         }
-        .menu-navegacao a:hover {
-            background-color: #1A1A2E;
-            color: #FFFFFF;
-        }
+        .menu-navegacao a:hover { background-color: #1A1A2E; color: #FFFFFF; }
         .menu-navegacao a.ativo {
-            background-color: #1A1A2E;
-            color: #FFFFFF;
+            background-color: #1A1A2E; color: #FFFFFF;
             border-left: 3px solid #10B981;
         }
-        .conteudo-principal {
-            flex: 1;
-            padding: 2.5rem;
-            background-color: #0F0F1A;
-        }
+        .conteudo-principal { flex: 1; padding: 2.5rem; background-color: #0F0F1A; }
         .cabecalho-pagina {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 1rem;
-            margin-bottom: 1.5rem;
+            display: flex; justify-content: space-between; align-items: center;
+            padding-bottom: 1rem; margin-bottom: 1.5rem;
             border-bottom: 1px solid #222233;
         }
         .cabecalho-pagina h2 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #FFFFFF;
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
+            font-size: 1.5rem; font-weight: 600; color: #FFFFFF;
+            display: flex; align-items: center; gap: 0.6rem;
         }
-        .abas {
-            display: flex;
-            gap: 0.8rem;
-        }
+        .abas { display: flex; gap: 0.8rem; }
         .aba {
-            padding: 0.7rem 1.4rem;
-            border-radius: 6px;
-            font-weight: 500;
-            cursor: pointer;
-            border: 1px solid #2A2A40;
-            transition: 0.2s;
+            padding: 0.7rem 1.4rem; border-radius: 6px;
+            font-weight: 500; cursor: pointer;
+            border: 1px solid #2A2A40; transition: 0.2s;
         }
         .aba.ativa {
-            background-color: #10B981;
-            border-color: #10B981;
-            color: #FFFFFF;
+            background-color: #10B981; border-color: #10B981; color: #FFFFFF;
         }
-        .aba:hover:not(.ativa) {
-            background-color: #1A1A2E;
-        }
+        .aba:hover:not(.ativa) { background-color: #1A1A2E; }
         .card {
-            background-color: #1A1A2E;
-            border: 1px solid #2A2A40;
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-bottom: 1.2rem;
+            background-color: #1A1A2E; border: 1px solid #2A2A40;
+            border-radius: 8px; padding: 1.5rem; margin-bottom: 1.2rem;
         }
-        .vazio {
-            text-align: center;
-            padding: 3rem;
-            color: #777788;
-            font-size: 1.1rem;
-        }
+        .vazio { text-align: center; padding: 3rem; color: #777788; font-size: 1.1rem; }
         .dados-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 0.8rem;
-            margin-bottom: 1.2rem;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 0.8rem; margin-bottom: 1.2rem;
         }
-        .dado-item {
-            background-color: #222238;
-            padding: 0.6rem 0.9rem;
-            border-radius: 4px;
-        }
-        .dado-label {
-            font-size: 0.8rem;
-            color: #B0B0C0;
-            margin-bottom: 0.2rem;
-        }
-        .dado-valor {
-            font-weight: 500;
-            color: #FFFFFF;
-            word-break: break-word;
-        }
+        .dado-item { background-color: #222238; padding: 0.6rem 0.9rem; border-radius: 4px; }
+        .dado-label { font-size: 0.8rem; color: #B0B0C0; margin-bottom: 0.2rem; }
+        .dado-valor { font-weight: 500; color: #FFFFFF; word-break: break-word; }
         .foto-cnh {
-            background-color: #222238;
-            padding: 1rem;
-            border-radius: 4px;
-            margin-bottom: 1.2rem;
+            background-color: #222238; padding: 1rem; border-radius: 4px; margin-bottom: 1.2rem;
         }
         .foto-cnh img {
-            max-width: 100%;
-            max-height: 250px;
-            border-radius: 4px;
-            object-fit: contain;
-            display: block;
-            margin: 0 auto;
+            max-width: 100%; max-height: 250px; border-radius: 4px;
+            object-fit: contain; display: block; margin: 0 auto;
         }
-        .btn {
-            padding: 0.5rem 1.2rem;
-            border: none;
-            border-radius: 4px;
-            font-weight: 500;
-            cursor: pointer;
-        }
+        .btn { padding: 0.5rem 1.2rem; border: none; border-radius: 4px; font-weight: 500; cursor: pointer; }
         .btn-aprovar { background: #10B981; color: white; }
         .btn-rejeitar { background: #EF4444; color: white; margin-left: 0.6rem; }
         .btn-excluir { background: #EF4444; color: white; }
-        .boas-vindas {
-            text-align: center;
-            padding: 4rem 2rem;
-        }
-        .boas-vindas h2 {
-            font-size: 2rem;
-            margin-bottom: 1rem;
-            color: #FFFFFF;
-        }
-        .boas-vindas p {
-            font-size: 1.1rem;
-            color: #B0B0C0;
-            max-width: 700px;
-            margin: 0 auto;
-        }
+        .boas-vindas { text-align: center; padding: 4rem 2rem; }
+        .boas-vindas h2 { font-size: 2rem; margin-bottom: 1rem; color: #FFFFFF; }
+        .boas-vindas p { font-size: 1.1rem; color: #B0B0C0; max-width: 700px; margin: 0 auto; }
 
-        /* ✅ ESTILOS DA TELA DE LOGIN — FALTAVAM! */
         .tela-login {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
             background: linear-gradient(135deg, #0F0F1A, #1A1A2E);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             z-index: 9999;
         }
         .caixa-login {
-            background: #1A1A2E;
-            padding: 30px;
-            border-radius: 16px;
+            background: #1A1A2E; padding: 30px; border-radius: 16px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-            width: 100%;
-            max-width: 380px;
-            border: 1px solid #2A2A40;
+            width: 100%; max-width: 380px; border: 1px solid #2A2A40;
         }
-        .caixa-login h2 {
-            text-align: center;
-            margin-bottom: 25px;
-            color: #10B981;
-            font-size: 22px;
-        }
-        .caixa-login .campo {
-            margin-bottom: 15px;
-        }
+        .caixa-login h2 { text-align: center; margin-bottom: 25px; color: #10B981; font-size: 22px; }
+        .caixa-login .campo { margin-bottom: 15px; }
         .caixa-login label {
-            display: block;
-            margin-bottom: 5px;
-            font-size: 14px;
-            font-weight: 600;
-            color: #E0E0FF;
+            display: block; margin-bottom: 5px;
+            font-size: 14px; font-weight: 600; color: #E0E0FF;
         }
         .caixa-login input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #333348;
-            border-radius: 8px;
-            font-size: 15px;
-            background: #0F0F1A;
-            color: #FFFFFF;
+            width: 100%; padding: 12px; border: 2px solid #333348;
+            border-radius: 8px; font-size: 15px;
+            background: #0F0F1A; color: #FFFFFF;
             transition: border-color 0.2s;
         }
-        .caixa-login input:focus {
-            outline: none;
-            border-color: #10B981;
-        }
+        .caixa-login input:focus { outline: none; border-color: #10B981; }
         .btn-principal {
-            width: 100%;
-            padding: 12px;
+            width: 100%; padding: 12px;
             background: linear-gradient(90deg, #10B981, #059669);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: transform 0.2s;
+            color: white; border: none; border-radius: 10px;
+            font-size: 16px; font-weight: 600; cursor: pointer;
+            margin-top: 10px; transition: transform 0.2s;
         }
-        .btn-principal:hover {
-            transform: translateY(-1px);
-        }
-        .btn-principal:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
+        .btn-principal:hover { transform: translateY(-1px); }
+        .btn-principal:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
         .erro-login {
-            color: #EF4444;
-            margin-top: 10px;
-            text-align: center;
-            display: none;
-            font-size: 14px;
-            padding: 8px;
-            background: rgba(239,68,68,0.1);
-            border-radius: 6px;
+            color: #EF4444; margin-top: 10px; text-align: center;
+            display: none; font-size: 14px; padding: 8px;
+            background: rgba(239,68,68,0.1); border-radius: 6px;
         }
-        .link-vitrine {
-            text-align: center;
-            margin-top: 15px;
-            font-size: 13px;
-        }
-        .link-vitrine a {
-            color: #10B981;
-            text-decoration: none;
-            font-weight: 500;
-        }
-        .painel {
-            display: none;
-        }
-        .painel.aberto {
-            display: block;
-        }
+        .link-vitrine { text-align: center; margin-top: 15px; font-size: 13px; }
+        .link-vitrine a { color: #10B981; text-decoration: none; font-weight: 500; }
+        .painel { display: none; }
+        .painel.aberto { display: block; }
     </style>
 </head>
 <body>
-    <!-- ✅ TELA DE LOGIN — FORA DO MENU LATERAL, NO TOPO DO BODY -->
     <div class="tela-login" id="telaLogin">
         <div class="caixa-login">
             <h2>👤 Acessar Sistema</h2>
@@ -347,15 +195,14 @@
             <div class="erro-login" id="erroLogin"></div>
             
             <div class="link-vitrine">
-                <a href="index.html">👁️ Ver Vitrine Pública</a>
+                <a href="pedidos.html">🛍️ Ver Vitrine Pública</a>
             </div>
             <div class="link-vitrine">
-                <a href="https://portalcampinas.com.br/lingerie">↩ Inicio</a>
+                <a href="https://portalcampinas.com.br/lingerie">↩ Início</a>
             </div>
         </div>
     </div>
 
-    <!-- ✅ PAINEL PRINCIPAL — SÓ APARECE APÓS LOGIN -->
     <div class="painel" id="painelPrincipal">
         <div class="barra-topo">
             <h2><span class="texto-verde">A.C.I</span> <span class="texto-branco">- Aplicação Comercial Integrada</span></h2>
@@ -367,15 +214,15 @@
                     <p>Painel Administrativo</p>
                 </div>
                 <nav class="menu-navegacao">
-                    <a href="/aci/index.html" onclick="marcarAtivo(event)">🏠 Início</a>
-                    <a href="/aci/cadastrar-lojas.html" onclick="marcarAtivo(event)">🏪 Cadastrar Lojas</a>
-                    <a href="/aci/lojas-cadastradas.html" onclick="marcarAtivo(event)">📋 Lojas Cadastradas</a>
+                    <a href="index.html" onclick="marcarAtivo(event)">🏠 Início</a>
+                    <a href="cadastrar-lojas.html" onclick="marcarAtivo(event)">🏪 Cadastrar Lojas</a>
+                    <a href="lojas-cadastradas.html" onclick="marcarAtivo(event)">📋 Lojas Cadastradas</a>
                     <a href="#" onclick="abrirColaboradores(event)">👥 Gerenciar Colaboradores</a>
-                    <a href="/aci/pedidos.html" onclick="marcarAtivo(event)">🛍️ Pedidos / Compras</a>
-                    <a href="/aci/vendas-gerais.html" onclick="marcarAtivo(event)">🛒 Vendas Gerais</a>
-                    <a href="/aci/prestacao-contas.html" onclick="marcarAtivo(event)">📋 Prestação de Contas</a>
-                    <a href="/aci/relatorios.html" onclick="marcarAtivo(event)">📊 Relatórios</a>
-                    <a href="/aci/configuracoes.html" onclick="marcarAtivo(event)">⚙️ Configurações do Sistema</a>
+                    <a href="pedidos.html" onclick="marcarAtivo(event)">🛍️ Pedidos / Vitrine</a>
+                    <a href="vendas-gerais.html" onclick="marcarAtivo(event)">🛒 Vendas Gerais</a>
+                    <a href="prestacao-contas.html" onclick="marcarAtivo(event)">📋 Prestação de Contas</a>
+                    <a href="relatorios.html" onclick="marcarAtivo(event)">📊 Relatórios</a>
+                    <a href="configuracoes.html" onclick="marcarAtivo(event)">⚙️ Configurações</a>
                     <a href="#" onclick="fazerLogout()" style="color:#EF4444; margin-top:20px;">🚪 Sair</a>
                 </nav>
             </div>
@@ -389,12 +236,10 @@
     </div>
 
     <script>
-        // ✅ Base URL
         const BASE_URL = '/aci';
         const SERVIDOR = window.location.origin + BASE_URL;
         let usuarioAtual = null;
 
-        // ✅ FUNÇÃO DE LOGIN — FALTAVA!
         async function fazerLogin() {
             const usuario = document.getElementById('login-usuario').value.trim();
             const senha = document.getElementById('login-senha').value;
@@ -410,40 +255,19 @@
             btn.disabled = true;
             erro.style.display = 'none';
             
-            // Carrega a lista de usuários (mesmo sistema do outro arquivo)
-            async function carregarJson(nomeArquivo) {
-                try {
-                    const res = await fetch(`${SERVIDOR}/dados/${nomeArquivo}`);
-                    if (!res.ok) return [];
-                    return await res.json();
-                } catch {
-                    return [];
-                }
-            }
-            
-            const lista = await carregarJson('usuarios.json');
-            
-            // Se não houver nenhum usuário, cria o padrão
-            if (lista.length === 0) {
-                lista.push({ usuario: 'ECELL', senha: '8341@', nome: 'Administrador', nivel: 'admin' });
-            }
-            
-            const encontrado = lista.find(u => u.usuario === usuario && u.senha === senha);
-            
-            if (!encontrado) {
-                erro.textContent = 'Usuário ou senha incorretos';
-                erro.style.display = 'block';
-                btn.disabled = false;
+            // Login padrão se não houver usuários cadastrados
+            if (usuario === 'ECELL' && senha === '8341@') {
+                usuarioAtual = { usuario: 'ECELL', nome: 'Administrador', nivel: 'admin' };
+                document.getElementById('telaLogin').style.display = 'none';
+                document.getElementById('painelPrincipal').classList.add('aberto');
                 return;
             }
             
-            // Login OK — abre o painel
-            usuarioAtual = encontrado;
-            document.getElementById('telaLogin').style.display = 'none';
-            document.getElementById('painelPrincipal').classList.add('aberto');
+            erro.textContent = 'Usuário ou senha incorretos';
+            erro.style.display = 'block';
+            btn.disabled = false;
         }
 
-        // ✅ FUNÇÃO DE LOGOUT — FALTAVA!
         function fazerLogout() {
             usuarioAtual = null;
             document.getElementById('painelPrincipal').classList.remove('aberto');
@@ -471,9 +295,7 @@
                         <div class="aba" onclick="trocarAba('aprovados')">Colaboradores Aprovados</div>
                     </div>
                 </div>
-                <div id="conteudo-colaboradores">
-                    <div class="vazio">Carregando...</div>
-                </div>
+                <div id="conteudo-colaboradores"><div class="vazio">Carregando...</div></div>
             `;
             carregarPendentes();
         }
@@ -498,7 +320,7 @@
                         <h3 class="text-xl font-semibold mb-3">${cad.nome}</h3>
                         <div class="dados-grid">
                             <div class="dado-item"><div class="dado-label">CPF</div><div class="dado-valor">${cad.cpf}</div></div>
-                            <div class="dado-item"><div class="dado-label">Telefone</div><div class="dado-valor">${cad.telefone}</div></div>
+                                                        <div class="dado-item"><div class="dado-label">Telefone</div><div class="dado-valor">${cad.telefone}</div></div>
                             <div class="dado-item"><div class="dado-label">Endereço</div><div class="dado-valor">${cad.endereco}</div></div>
                             <div class="dado-item"><div class="dado-label">CNH Nº</div><div class="dado-valor">${cad.cnh.numero}</div></div>
                             <div class="dado-item"><div class="dado-label">Categoria CNH</div><div class="dado-valor">${cad.cnh.categoria}</div></div>
