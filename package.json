@@ -1,9 +1,9 @@
-{
+﻿{
   "name": "sistema-aci",
   "version": "1.0.0",
-  "main": "servidor.js",
+  "main": "servidor/app.js",
   "scripts": {
-    "start": "node servidor.js"
+    "start": "node servidor/app.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
